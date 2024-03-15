@@ -34,6 +34,7 @@ func RunApp(){
     }
     */
     for {
+        editorRefreshScreen()
         editorProcessKeyPress(&oldState)
     }
 }
@@ -84,4 +85,10 @@ func editorProcessKeyPress(oldState *term.State){
         fmt.Println("<q>")
     default: fmt.Print(string(inputRune))
     }
+}
+
+func editorRefreshScreen(){
+    //fmt.Print("/x1b[2J")
+    fmt.Print("\033[2J")
+    fmt.Print("\033[H")
 }
