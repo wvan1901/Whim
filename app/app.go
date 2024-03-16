@@ -18,21 +18,6 @@ const (
 func RunApp(){
     oldState := enableRawMode()
     defer disableRawMode(&oldState)
-    /*
-    var inputByte byte
-    for string(inputByte) != "q"{
-        inputRune, _ := utf8.DecodeRune([]byte(string(inputByte)))
-        //If the Char is a control char then it enter if statement
-        if unicode.IsControl(inputRune) {
-            if inputByte == CONTROLCASCII {
-                break
-            }
-        }
-        inputByte = input.ReaderByte()
-
-        //fmt.Print(string(inputByte))
-    }
-    */
     for {
         editorRefreshScreen()
         editorProcessKeyPress(&oldState)
@@ -40,18 +25,6 @@ func RunApp(){
 }
 
 func enableRawMode() term.State{
-    /*
-    STDINFILENO := 0
-    raw, err := unix.IoctlGetTermios(STDINFILENO, unix.TCGETS)
-    if err != nil {
-        panic(err)
-    }
-    
-    rawState := *raw
-    rawState.Lflag &^= unix.ECHO err = unix.IoctlSetTermios(STDINFILENO, unix.TCSETA, &rawState) if err != nil {
-        panic(err)
-    }
-    */
     oldState, err := term.MakeRaw(0)
     if err != nil {
         panic(err)
@@ -64,8 +37,6 @@ func disableRawMode(oldState *term.State) {
 }
 
 func editorReadKey() byte {
-    // var inputByte byte
-    // inputByte = input.ReaderByte()
     return input.ReaderByte()//inputByte
 }
 
@@ -76,6 +47,8 @@ func editorProcessKeyPress(oldState *term.State){
         case CONTROLCASCII:
             fmt.Println("<C>")
             disableRawMode(oldState)
+            fmt.Print("\033[2J")
+            fmt.Print("\033[H")
             defer os.Exit(0)
             break
         }
@@ -88,7 +61,23 @@ func editorProcessKeyPress(oldState *term.State){
 }
 
 func editorRefreshScreen(){
-    //fmt.Print("/x1b[2J")
     fmt.Print("\033[2J")
     fmt.Print("\033[H")
+    editorDrawRows()
+    fmt.Print("\033[H")
 }
+
+func die(){
+    fmt.Print("\033[2J")
+    fmt.Print("\033[H")
+    //Add os exit method!
+    defer os.Exit(1)
+}
+
+func editorDrawRows(){
+    y:= 0
+    for y=0;y<24;y++ {
+        fmt.Print("~\r\n")
+    }
+}
+
