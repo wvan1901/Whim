@@ -2,6 +2,8 @@ package app
 
 import (
 	"os"
+    "strings"
+	"wicho/whim/app/data"
 	"wicho/whim/input"
 
 	"fmt"
@@ -18,8 +20,9 @@ const (
 func RunApp(){
     oldState := enableRawMode()
     defer disableRawMode(&oldState)
+    AppData := initEditor(&oldState)
     for {
-        editorRefreshScreen()
+        editorRefreshScreen(&AppData)
         editorProcessKeyPress(&oldState)
     }
 }
@@ -60,11 +63,19 @@ func editorProcessKeyPress(oldState *term.State){
     }
 }
 
-func editorRefreshScreen(){
-    fmt.Print("\033[2J")
-    fmt.Print("\033[H")
-    editorDrawRows()
-    fmt.Print("\033[H")
+func editorRefreshScreen(appData *data.EditorConfig){
+    // fmt.Print("\033[2J")
+    // fmt.Print("\033[H")
+    appData.ABuf.WriteString("\033[?25l")
+    appData.ABuf.WriteString("\033[2J")
+    appData.ABuf.WriteString("\033[H")
+    editorDrawRows(appData)
+    // fmt.Print("\033[H")
+    appData.ABuf.WriteString("\033[H")
+    appData.ABuf.WriteString("\033[?25h")
+    fmt.Print(appData.ABuf.String())
+    //setCursorPosition(appData)
+    appData.ABuf.Reset()
 }
 
 func die(){
@@ -74,10 +85,53 @@ func die(){
     defer os.Exit(1)
 }
 
-func editorDrawRows(){
-    y:= 0
-    for y=0;y<24;y++ {
-        fmt.Print("~\r\n")
+func editorDrawRows(editorData *data.EditorConfig){
+    for y:=0; y<editorData.ScreenRows; y++ {
+        // fmt.Print("~")
+        editorData.ABuf.WriteString("~")
+        if y < editorData.ScreenRows -1 {
+            editorData.ABuf.WriteString("\r\n")
+            // fmt.Print("\r\n")
+        }
     }
 }
 
+func getWindowSize()(int, int){
+    width, height, err := term.GetSize(0)
+    if err != nil {
+        die()
+    }
+    //getCursorPosition(height, width)
+    return width, height
+}
+
+func initEditor(oldState *term.State) data.EditorConfig{
+    width, height := getWindowSize()
+    initCursorX, initCursorY := 7,7
+    //fmt.Printf("\033[%d;%dH", initCursorY, initCursorX) // Set cursor position    
+    var newBuf strings.Builder
+    // newBuf.WriteString("")
+    // cursorPosString := fmt.Sprintf("\033[%d;%dH", initCursorY, initCursorX)
+    // newBuf.WriteString(cursorPosString)
+    return data.EditorConfig{
+        OldTerminalState: *oldState, 
+        ScreenRows: height,
+        ScreenColumns: width,
+        CursorPosX: initCursorX,
+        CursorPosY: initCursorY,
+        ABuf: newBuf,
+    }
+}
+
+//TODO: Check if setting the cursor works!
+func getCursorPosition(data *data.EditorConfig) (int, int){
+    // fmt.Printf("\033[%d;%dH", line, col) // Set cursor position    
+    // Below is the ascape code to get cursor but couldn't figure how to get output
+    // fmt.Print("\033[6n")
+    // fmt.Print("\r\n")
+    fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
+    return data.CursorPosX, data.CursorPosY
+}
+func setCursorPosition(data *data.EditorConfig) {
+    fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
+}
