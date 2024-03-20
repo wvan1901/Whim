@@ -1,11 +1,12 @@
 package input
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"log"
-    "bufio"
-    "os"
-    "io"
+	"os"
+	"unicode/utf8"
 )
 
 func InputByte(){
@@ -50,6 +51,13 @@ func ReaderByte() byte {
     var charValue byte
     var err error
     reader := bufio.NewReader(STDINFILE)
+    // TODO: Refactor this to take an array of bytes
+    testByte := make([]byte, 4)
+    reader.Read(testByte)
+    fmt.Println("STRING:", string(testByte))
+    fmt.Println("TEST:", testByte)
+    val, aErr := utf8.DecodeRune(testByte)
+    fmt.Println("RUNE:", val,"|",aErr)
     charValue, err = reader.ReadByte()
     if err != nil {
         if err == io.EOF {
@@ -57,4 +65,13 @@ func ReaderByte() byte {
         }
     }
     return charValue
+}
+
+// NEW Func that gets the input []byte
+func ReaderBytes() []byte {
+    STDINFILE := os.Stdin
+    reader := bufio.NewReader(STDINFILE)
+    inputBytes := make([]byte, 3)
+    reader.Read(inputBytes)
+    return inputBytes
 }

@@ -15,6 +15,11 @@ import (
 
 const (
     CONTROLCASCII = 3
+    ARROWFIRSTBYTE = 27
+    LEFT_ARROW = 68
+    RIGHT_ARROW = 67
+    DOWN_ARROW = 66
+    UP_ARROW = 65
     WHIM_VERSION = "0.0.1"
 )
 
@@ -40,66 +45,70 @@ func disableRawMode(oldState *term.State) {
     term.Restore(0, oldState)
 }
 
-func editorReadKey() byte {
-    return input.ReaderByte()//inputByte
+func editorReadKey() []byte {
+    return input.ReaderBytes()// gets the array of bytes
 }
 
 func editorProcessKeyPress(appData *data.EditorConfig){
     keyRead := editorReadKey()
     inputRune, _ := utf8.DecodeRune([]byte(string(keyRead)))
     if unicode.IsControl(inputRune){
-        switch inputRune {
+        switch keyRead[0] {
         case CONTROLCASCII:
             fmt.Println("<C>")
             disableRawMode(&appData.OldTerminalState)
             fmt.Print("\033[2J")
             fmt.Print("\033[H")
             defer os.Exit(0)
-            break
+        break
+        case ARROWFIRSTBYTE:
+            editorMoveCursor(appData, keyRead[2])
+        default:
+            appData.ABuf.WriteRune(inputRune)
         }
     }
     switch string(inputRune) {
     case "q":
         fmt.Println("<q>")
     case "h", "j", "k", "l":
-        editorMoveCursor(appData, keyRead)
+        editorMoveCursor(appData, keyRead[0])
     default: fmt.Print(string(inputRune))
     }
 }
 
 func editorMoveCursor(appData *data.EditorConfig, inputByte byte){
     switch string(inputByte) {
-        case "h":
-            //Left
+        case "h"://Left
             appData.CursorPosX--
-        case "j":
-            //Down
+        case "j"://Down
             appData.CursorPosY++
-        case "k":
-            //Up
+        case "k"://Up
             appData.CursorPosY--
-        case "l":
-            //Right
+        case "l"://Right
             appData.CursorPosX++
+    }
+    switch inputByte {
+        case LEFT_ARROW:
+            appData.CursorPosX--
+        case RIGHT_ARROW:
+            appData.CursorPosX++
+        case DOWN_ARROW:
+            appData.CursorPosY++
+        case UP_ARROW:
+            appData.CursorPosY--
     }
 }
 
 func editorRefreshScreen(appData *data.EditorConfig){
-    // fmt.Print("\033[2J")
-    // fmt.Print("\033[H")
     appData.ABuf.WriteString("\033[?25l")
-    //appData.ABuf.WriteString("\033[2J")
     appData.ABuf.WriteString("\033[H")
     editorDrawRows(appData)
-    // fmt.Print("\033[H")
-    // appData.ABuf.WriteString("\033[H")
     
     setCursorPosition(appData)
 
     appData.ABuf.WriteString("\033[?25h")
 
     fmt.Print(appData.ABuf.String())
-    //setCursorPosition(appData)
     appData.ABuf.Reset()
 }
 
@@ -130,7 +139,6 @@ func editorDrawRows(editorData *data.EditorConfig){
         } else {
             editorData.ABuf.WriteString("~")
         }
-        // editorData.ABuf.WriteString("~")
 
         editorData.ABuf.WriteString("\033[K")
         if y < editorData.ScreenRows -1 {
@@ -144,7 +152,6 @@ func getWindowSize()(int, int){
     if err != nil {
         die()
     }
-    //getCursorPosition(height, width)
     return width, height
 }
 
@@ -153,9 +160,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
     initCursorX, initCursorY := 2,2
     //fmt.Printf("\033[%d;%dH", initCursorY, initCursorX) // Set cursor position    
     var newBuf strings.Builder
-    // newBuf.WriteString("")
-    // cursorPosString := fmt.Sprintf("\033[%d;%dH", initCursorY, initCursorX)
-    // newBuf.WriteString(cursorPosString)
+    newBuf.Reset()
     return data.EditorConfig{
         OldTerminalState: *oldState, 
         ScreenRows: height,
@@ -168,15 +173,10 @@ func initEditor(oldState *term.State) data.EditorConfig{
 
 //TODO: Check if setting the cursor works!
 func getCursorPosition(data *data.EditorConfig) (int, int){
-    // fmt.Printf("\033[%d;%dH", line, col) // Set cursor position    
-    // Below is the ascape code to get cursor but couldn't figure how to get output
-    // fmt.Print("\033[6n")
-    // fmt.Print("\r\n")
     fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
     return data.CursorPosX, data.CursorPosY
 }
 func setCursorPosition(data *data.EditorConfig) {
-    //fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
     cursorPos := fmt.Sprintf("\033[%d;%dH", data.CursorPosY, data.CursorPosX)
     data.ABuf.WriteString(cursorPos)
 }
