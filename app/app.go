@@ -92,25 +92,23 @@ func editorProcessKeyPress(appData *data.EditorConfig){
 }
 
 func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
-    switch string(inputRune) {
-        case "h"://Left
-            appData.CursorPosX--
-        case "j"://Down
-            appData.CursorPosY++
-        case "k"://Up
-            appData.CursorPosY--
-        case "l"://Right
-            appData.CursorPosX++
-    }
     switch inputRune {
         case LEFT_ARROW:
-            appData.CursorPosX--
+            if (appData.CursorPosX != 1){
+                appData.CursorPosX--
+            }
         case RIGHT_ARROW:
-            appData.CursorPosX++
+            if appData.CursorPosX != appData.ScreenColumns{
+                appData.CursorPosX++
+            }
         case DOWN_ARROW:
-            appData.CursorPosY++
+            if appData.CursorPosY != appData.ScreenRows{
+                appData.CursorPosY++
+            }
         case UP_ARROW:
-            appData.CursorPosY--
+            if appData.CursorPosY != 1 {
+                appData.CursorPosY--
+            }
     }
 }
 
