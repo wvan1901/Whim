@@ -15,13 +15,16 @@ import (
 
 const (
     CONTROLCASCII = 3
-    ARROWFIRSTBYTE = 27
+    CONTROLFIRSTBYTE = 27
     LEFT_ARROW = 68
     RIGHT_ARROW = 67
     DOWN_ARROW = 66
     UP_ARROW = 65
     PAGE_UP = 53
     PAGE_DOWN = 54
+    HOME_KEY = 72
+    END_KEY = 70
+    DEL_KEY = 51
     WHIM_VERSION = "0.0.1"
 )
 
@@ -54,8 +57,10 @@ func editorReadKey() rune {
         switch inputRune {
         case CONTROLCASCII:
             return inputRune
-        case ARROWFIRSTBYTE:
+        case CONTROLFIRSTBYTE:
             returnRune, _ := utf8.DecodeRune(inputBytes[2:])
+            // fmt.Println("BYTES:", inputBytes)
+            // die()
             return returnRune
         case PAGE_UP, PAGE_DOWN:
             return inputRune
@@ -94,6 +99,12 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         appData.CursorPosY = 1
     case PAGE_DOWN:
         appData.CursorPosY = appData.ScreenRows
+    case HOME_KEY:
+        appData.CursorPosX = 1
+    case END_KEY:
+            appData.CursorPosX = appData.ScreenColumns
+    case DEL_KEY:
+
     default:
         appData.ABuf.WriteRune(keyReadRune)
         fmt.Println(keyReadRune)
