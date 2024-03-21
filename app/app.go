@@ -20,6 +20,8 @@ const (
     RIGHT_ARROW = 67
     DOWN_ARROW = 66
     UP_ARROW = 65
+    PAGE_UP = 53
+    PAGE_DOWN = 54
     WHIM_VERSION = "0.0.1"
 )
 
@@ -55,8 +57,10 @@ func editorReadKey() rune {
         case ARROWFIRSTBYTE:
             returnRune, _ := utf8.DecodeRune(inputBytes[2:])
             return returnRune
-        default:
+        case PAGE_UP, PAGE_DOWN:
             return inputRune
+        default:
+            return 0
         }
     }
     switch string(inputRune) {
@@ -86,8 +90,15 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         break
     case LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW:
         editorMoveCursor(appData, keyReadRune)
+    case PAGE_UP:
+        appData.CursorPosY = 1
+    case PAGE_DOWN:
+        appData.CursorPosY = appData.ScreenRows
     default:
         appData.ABuf.WriteRune(keyReadRune)
+        fmt.Println(keyReadRune)
+        disableRawMode(&appData.OldTerminalState)
+        defer os.Exit(0)
     }
 }
 
