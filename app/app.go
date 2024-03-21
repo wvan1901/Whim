@@ -45,39 +45,54 @@ func disableRawMode(oldState *term.State) {
     term.Restore(0, oldState)
 }
 
-func editorReadKey() []byte {
-    return input.ReaderBytes()// gets the array of bytes
-}
-
-func editorProcessKeyPress(appData *data.EditorConfig){
-    keyRead := editorReadKey()
-    inputRune, _ := utf8.DecodeRune([]byte(string(keyRead)))
+func editorReadKey() rune {
+    inputBytes := input.ReaderBytes()
+    inputRune, _ := utf8.DecodeRune(inputBytes)
     if unicode.IsControl(inputRune){
-        switch keyRead[0] {
+        switch inputRune {
         case CONTROLCASCII:
-            fmt.Println("<C>")
-            disableRawMode(&appData.OldTerminalState)
-            fmt.Print("\033[2J")
-            fmt.Print("\033[H")
-            defer os.Exit(0)
-        break
+            return inputRune
         case ARROWFIRSTBYTE:
-            editorMoveCursor(appData, keyRead[2])
+            returnRune, _ := utf8.DecodeRune(inputBytes[2:])
+            return returnRune
         default:
-            appData.ABuf.WriteRune(inputRune)
+            return inputRune
         }
     }
     switch string(inputRune) {
     case "q":
-        fmt.Println("<q>")
-    case "h", "j", "k", "l":
-        editorMoveCursor(appData, keyRead[0])
-    default: fmt.Print(string(inputRune))
+        return CONTROLCASCII
+    case "h":
+        return LEFT_ARROW
+    case "j":
+        return DOWN_ARROW
+    case "k":
+        return UP_ARROW
+    case "l":
+        return RIGHT_ARROW
+    }
+    return inputRune
+}
+
+func editorProcessKeyPress(appData *data.EditorConfig){
+    keyReadRune := editorReadKey()
+    switch keyReadRune {
+    case CONTROLCASCII:
+        fmt.Println("<C>")
+        disableRawMode(&appData.OldTerminalState)
+        fmt.Print("\033[2J")
+        fmt.Print("\033[H")
+        defer os.Exit(0)
+        break
+    case LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW:
+        editorMoveCursor(appData, keyReadRune)
+    default:
+        appData.ABuf.WriteRune(keyReadRune)
     }
 }
 
-func editorMoveCursor(appData *data.EditorConfig, inputByte byte){
-    switch string(inputByte) {
+func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
+    switch string(inputRune) {
         case "h"://Left
             appData.CursorPosX--
         case "j"://Down
@@ -87,7 +102,7 @@ func editorMoveCursor(appData *data.EditorConfig, inputByte byte){
         case "l"://Right
             appData.CursorPosX++
     }
-    switch inputByte {
+    switch inputRune {
         case LEFT_ARROW:
             appData.CursorPosX--
         case RIGHT_ARROW:
@@ -158,7 +173,6 @@ func getWindowSize()(int, int){
 func initEditor(oldState *term.State) data.EditorConfig{
     width, height := getWindowSize()
     initCursorX, initCursorY := 2,2
-    //fmt.Printf("\033[%d;%dH", initCursorY, initCursorX) // Set cursor position    
     var newBuf strings.Builder
     newBuf.Reset()
     return data.EditorConfig{
