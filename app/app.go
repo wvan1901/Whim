@@ -2,8 +2,9 @@ package app
 
 import (
 	"os"
-    "strings"
+	"strings"
 	"wicho/whim/app/data"
+	"wicho/whim/app/fileio"
 	"wicho/whim/input"
 
 	"fmt"
@@ -32,6 +33,10 @@ func RunApp(){
     oldState := enableRawMode()
     defer disableRawMode(&oldState)
     AppData := initEditor(&oldState)
+    argsWithProg := os.Args
+    if len(argsWithProg) >= 2 {
+        fileio.EditorOpen(&AppData, argsWithProg[1])
+    }
     for {
         editorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
@@ -156,25 +161,33 @@ func die(){
 
 func editorDrawRows(editorData *data.EditorConfig){
     for y:=0; y<editorData.ScreenRows; y++ {
-        if y == editorData.ScreenRows/3 {
-            welcome := fmt.Sprintf("Whim Editor -- version %s", WHIM_VERSION)
-            if len(welcome) > editorData.ScreenColumns{
-                welcome = "v:"+WHIM_VERSION
-            }
-            padding := (editorData.ScreenColumns - len(welcome))/2
-            if padding>0{
+        if y >= editorData.NumRows{
+            if editorData.NumRows == 0 && y == editorData.ScreenRows/3 {
+                welcome := fmt.Sprintf("Whim Editor -- version %s", WHIM_VERSION)
+                if len(welcome) > editorData.ScreenColumns{
+                    welcome = "v:"+WHIM_VERSION
+                }
+                padding := (editorData.ScreenColumns - len(welcome))/2
+                if padding>0{
+                    editorData.ABuf.WriteString("~")
+                    padding--
+                }
+                for padding>0 {
+                    padding--
+                    editorData.ABuf.WriteString(" ")
+                }
+                editorData.ABuf.WriteString(welcome)
+            } else {
                 editorData.ABuf.WriteString("~")
-                padding--
             }
-            for padding>0 {
-                padding--
-                editorData.ABuf.WriteString(" ")
-            }
-            editorData.ABuf.WriteString(welcome)
-        } else {
-            editorData.ABuf.WriteString("~")
-        }
 
+        } else {
+            rowlength := editorData.Row.Size
+            if rowlength > editorData.ScreenColumns {
+                rowlength = editorData.ScreenColumns
+            }
+            editorData.ABuf.WriteString(*editorData.Row.Runes)
+        }
         editorData.ABuf.WriteString("\033[K")
         if y < editorData.ScreenRows -1 {
             editorData.ABuf.WriteString("\r\n")
@@ -202,6 +215,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         CursorPosX: initCursorX,
         CursorPosY: initCursorY,
         ABuf: newBuf,
+        NumRows: 0,
     }
 }
 
