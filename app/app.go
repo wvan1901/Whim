@@ -103,6 +103,7 @@ func editorProcessKeyPress(appData *data.EditorConfig){
     case PAGE_UP:
         appData.CursorPosY = 1
     case PAGE_DOWN:
+        //TODO: Fix so it goes to bottom of file
         appData.CursorPosY = appData.ScreenRows
     case HOME_KEY:
         appData.CursorPosX = 1
@@ -129,7 +130,7 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
                 appData.CursorPosX++
             }
         case DOWN_ARROW:
-            if appData.CursorPosY != appData.ScreenRows{
+            if appData.CursorPosY < appData.NumRows{
                 appData.CursorPosY++
             }
         case UP_ARROW:
@@ -140,6 +141,7 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
 }
 
 func editorRefreshScreen(appData *data.EditorConfig){
+    editorScroll(appData)
     appData.ABuf.WriteString("\033[?25l")
     appData.ABuf.WriteString("\033[H")
     editorDrawRows(appData)
@@ -161,7 +163,8 @@ func die(){
 
 func editorDrawRows(editorData *data.EditorConfig){
     for y:=0; y<editorData.ScreenRows; y++ {
-        if y >= editorData.NumRows{
+        fileRow := y + editorData.RowOffSet
+        if fileRow >= editorData.NumRows{
             if editorData.NumRows == 0 && y == editorData.ScreenRows/3 {
                 welcome := fmt.Sprintf("Whim Editor -- version %s", WHIM_VERSION)
                 if len(welcome) > editorData.ScreenColumns{
@@ -182,13 +185,13 @@ func editorDrawRows(editorData *data.EditorConfig){
             }
 
         } else {
-            rowlength := editorData.Row[y].Size
+            rowlength := editorData.Row[fileRow].Size
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
-                shortenedString := (*editorData.Row[y].Runes)[:rowlength]
+                shortenedString := (*editorData.Row[fileRow].Runes)[:rowlength]
                 editorData.ABuf.WriteString(shortenedString) 
             } else {
-                editorData.ABuf.WriteString(*editorData.Row[y].Runes)
+                editorData.ABuf.WriteString(*editorData.Row[fileRow].Runes)
             }
 
         }
@@ -196,6 +199,15 @@ func editorDrawRows(editorData *data.EditorConfig){
         if y < editorData.ScreenRows -1 {
             editorData.ABuf.WriteString("\r\n")
         }
+    }
+}
+
+func editorScroll(editorData *data.EditorConfig) {
+    if editorData.CursorPosY <= editorData.RowOffSet {
+        editorData.RowOffSet = editorData.CursorPosY - 1
+    }
+    if editorData.CursorPosY > editorData.RowOffSet+editorData.ScreenRows { 
+        editorData.RowOffSet = editorData.CursorPosY - editorData.ScreenRows
     }
 }
 
@@ -216,6 +228,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
     return data.EditorConfig{
         OldTerminalState: *oldState, 
         ScreenRows: height,
+        RowOffSet: 0,
         ScreenColumns: width,
         CursorPosX: initCursorX,
         CursorPosY: initCursorY,
@@ -231,7 +244,7 @@ func getCursorPosition(data *data.EditorConfig) (int, int){
     return data.CursorPosX, data.CursorPosY
 }
 func setCursorPosition(data *data.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", data.CursorPosY, data.CursorPosX)
+    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet), data.CursorPosX)
     data.ABuf.WriteString(cursorPos)
 }
 

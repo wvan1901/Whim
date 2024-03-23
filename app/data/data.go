@@ -11,6 +11,7 @@ type EditorConfig struct {
     OldTerminalState term.State
     ScreenRows int
     ScreenColumns int
+    RowOffSet int
     CursorPosX int
     CursorPosY int
     NumRows int
