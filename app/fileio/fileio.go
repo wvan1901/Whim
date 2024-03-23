@@ -19,18 +19,18 @@ func EditorOpen(appData *data.EditorConfig, fileName string){
     for scanner.Scan() {
         totalLines++
         line = scanner.Text()
-        //fmt.Println(line)
-        appData.ABuf.WriteString(line)
+        //appData.ABuf.WriteString(line)
+        appData.EditorAppendRow(line)
     }
     // scanner.Scan doesnt include the newlines ?!
     // line = strings.TrimSuffix(line, "\n")
-    appData.Row.Size = totalLines
-    appData.Row.Runes = &line
+    // appData.Row.Size = totalLines
+    // appData.Row.Runes = &line
 
-    newRow := data.EditorRow{
-        Size: len(line),
-        Runes: &line,
-    }
-    appData.Row = newRow
-    appData.NumRows = 1
+    // newRow := data.EditorRow{
+    //     Size: len(line),
+    //     Runes: &line,
+    // }
+    // appData.Row = &newRow
+    // appData.NumRows = 1
 }

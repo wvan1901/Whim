@@ -112,9 +112,9 @@ func editorProcessKeyPress(appData *data.EditorConfig){
 
     default:
         appData.ABuf.WriteRune(keyReadRune)
-        fmt.Println(keyReadRune)
-        disableRawMode(&appData.OldTerminalState)
-        defer os.Exit(0)
+        // fmt.Println(keyReadRune)
+        // disableRawMode(&appData.OldTerminalState)
+        // defer os.Exit(0)
     }
 }
 
@@ -182,11 +182,15 @@ func editorDrawRows(editorData *data.EditorConfig){
             }
 
         } else {
-            rowlength := editorData.Row.Size
+            rowlength := editorData.Row[y].Size
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
+                shortenedString := (*editorData.Row[y].Runes)[:rowlength]
+                editorData.ABuf.WriteString(shortenedString) 
+            } else {
+                editorData.ABuf.WriteString(*editorData.Row[y].Runes)
             }
-            editorData.ABuf.WriteString(*editorData.Row.Runes)
+
         }
         editorData.ABuf.WriteString("\033[K")
         if y < editorData.ScreenRows -1 {
@@ -208,6 +212,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
     initCursorX, initCursorY := 2,2
     var newBuf strings.Builder
     newBuf.Reset()
+    newRowSlice := make([]*data.EditorRow, 0)
     return data.EditorConfig{
         OldTerminalState: *oldState, 
         ScreenRows: height,
@@ -215,6 +220,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         CursorPosX: initCursorX,
         CursorPosY: initCursorY,
         ABuf: newBuf,
+        Row: newRowSlice,
         NumRows: 0,
     }
 }
@@ -228,3 +234,4 @@ func setCursorPosition(data *data.EditorConfig) {
     cursorPos := fmt.Sprintf("\033[%d;%dH", data.CursorPosY, data.CursorPosX)
     data.ABuf.WriteString(cursorPos)
 }
+

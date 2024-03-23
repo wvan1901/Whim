@@ -14,7 +14,7 @@ type EditorConfig struct {
     CursorPosX int
     CursorPosY int
     NumRows int
-    Row EditorRow
+    Row []*EditorRow
     ABuf strings.Builder
 }
 
@@ -30,4 +30,22 @@ func (appData *EditorConfig) Die(){
     //Add os exit method! 
     term.Restore(0, &appData.OldTerminalState)
     defer os.Exit(1)
+}
+
+/*
+    Row Operations
+*/
+func (editorData *EditorConfig) EditorAppendRow(aString string){
+    // editorData.Row.Size = len(aString)
+    // editorData.Row.Runes = &aString
+    newRow := EditorRow{
+        Size: len(aString),
+        Runes: &aString,
+    }
+    newSlice := append(editorData.Row, &newRow)
+    // fmt.Println("Slices", *newSlice[0])
+    // fmt.Println("NewRow", newRow)
+    //editorData.Die()
+    editorData.Row = newSlice
+    editorData.NumRows++
 }
