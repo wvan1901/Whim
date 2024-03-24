@@ -120,18 +120,24 @@ func editorProcessKeyPress(appData *data.EditorConfig){
 }
 
 func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
+    var pointerRow *data.EditorRow
+    if appData.CursorPosY > appData.NumRows {
+        pointerRow = nil
+    } else {
+        pointerRow = appData.Row[appData.CursorPosY-1]
+    }
+
     switch inputRune {
         case LEFT_ARROW:
             if (appData.CursorPosX != 1){
                 appData.CursorPosX--
             }
         case RIGHT_ARROW:
-            //TODO: Fix so it stops at end of line
-            // if appData.CursorPosX < appData.ScreenColumns{
+            if pointerRow != nil && appData.CursorPosX <= pointerRow.Size{
                 appData.CursorPosX++
-            // }
+            }
         case DOWN_ARROW:
-            if appData.CursorPosY < appData.NumRows{
+            if appData.CursorPosY <= appData.NumRows{
                 appData.CursorPosY++
             }
         case UP_ARROW:
@@ -252,6 +258,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
 }
 
 //TODO: Check if setting the cursor works!
+//?: should I deprecate this method?
 func getCursorPosition(data *data.EditorConfig) (int, int){
     fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
     return data.CursorPosX, data.CursorPosY
