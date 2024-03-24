@@ -121,7 +121,7 @@ func editorProcessKeyPress(appData *data.EditorConfig){
 
 func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
     var pointerRow *data.EditorRow
-    if appData.CursorPosY > appData.NumRows {
+    if appData.CursorPosY >= appData.NumRows {
         pointerRow = nil
     } else {
         pointerRow = appData.Row[appData.CursorPosY-1]
@@ -132,18 +132,38 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
             if (appData.CursorPosX != 1){
                 appData.CursorPosX--
             }
+            break
         case RIGHT_ARROW:
             if pointerRow != nil && appData.CursorPosX <= pointerRow.Size{
                 appData.CursorPosX++
             }
+            break
         case DOWN_ARROW:
             if appData.CursorPosY <= appData.NumRows{
                 appData.CursorPosY++
             }
+            break
         case UP_ARROW:
             if appData.CursorPosY != 1 {
                 appData.CursorPosY--
             }
+            break
+    }
+    //TODO: This breaks the space after the lines! FIX IT
+    if appData.CursorPosY >= appData.NumRows {
+        pointerRow = nil
+    } else {
+        pointerRow = appData.Row[appData.CursorPosY-1]
+    }
+    rowLength := 0
+    if pointerRow != nil {
+        rowLength = pointerRow.Size
+    }
+    if rowLength < 1 {
+        rowLength = 1
+    }
+    if appData.CursorPosX > rowLength+1 {
+        appData.CursorPosX = rowLength
     }
 }
 
