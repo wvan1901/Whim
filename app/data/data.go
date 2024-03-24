@@ -12,6 +12,7 @@ type EditorConfig struct {
     ScreenRows int
     ScreenColumns int
     RowOffSet int
+    ColOffSet int
     CursorPosX int
     CursorPosY int
     NumRows int
@@ -37,16 +38,11 @@ func (appData *EditorConfig) Die(){
     Row Operations
 */
 func (editorData *EditorConfig) EditorAppendRow(aString string){
-    // editorData.Row.Size = len(aString)
-    // editorData.Row.Runes = &aString
     newRow := EditorRow{
         Size: len(aString),
         Runes: &aString,
     }
     newSlice := append(editorData.Row, &newRow)
-    // fmt.Println("Slices", *newSlice[0])
-    // fmt.Println("NewRow", newRow)
-    //editorData.Die()
     editorData.Row = newSlice
     editorData.NumRows++
 }

@@ -126,9 +126,10 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
                 appData.CursorPosX--
             }
         case RIGHT_ARROW:
-            if appData.CursorPosX != appData.ScreenColumns{
+            //TODO: Fix so it stops at end of line
+            // if appData.CursorPosX < appData.ScreenColumns{
                 appData.CursorPosX++
-            }
+            // }
         case DOWN_ARROW:
             if appData.CursorPosY < appData.NumRows{
                 appData.CursorPosY++
@@ -185,13 +186,18 @@ func editorDrawRows(editorData *data.EditorConfig){
             }
 
         } else {
-            rowlength := editorData.Row[fileRow].Size
+            rowlength := editorData.Row[fileRow].Size - editorData.ColOffSet
+            if rowlength < 0 {
+                rowlength = 0
+            }
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
-                shortenedString := (*editorData.Row[fileRow].Runes)[:rowlength]
+                shortenedString := (*editorData.Row[fileRow].Runes)[editorData.ColOffSet:rowlength]
                 editorData.ABuf.WriteString(shortenedString) 
+            } else if rowlength == 0 {
+                editorData.ABuf.WriteString("")
             } else {
-                editorData.ABuf.WriteString(*editorData.Row[fileRow].Runes)
+                editorData.ABuf.WriteString((*editorData.Row[fileRow].Runes)[editorData.ColOffSet:])
             }
 
         }
@@ -208,6 +214,12 @@ func editorScroll(editorData *data.EditorConfig) {
     }
     if editorData.CursorPosY > editorData.RowOffSet+editorData.ScreenRows { 
         editorData.RowOffSet = editorData.CursorPosY - editorData.ScreenRows
+    }
+    if editorData.CursorPosX <= editorData.ColOffSet{
+        editorData.ColOffSet = editorData.CursorPosX - 1
+    }
+    if editorData.CursorPosX > editorData.ColOffSet + editorData.ScreenColumns {
+        editorData.ColOffSet = editorData.CursorPosX - editorData.ScreenColumns
     }
 }
 
@@ -229,6 +241,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         OldTerminalState: *oldState, 
         ScreenRows: height,
         RowOffSet: 0,
+        ColOffSet: 0,
         ScreenColumns: width,
         CursorPosX: initCursorX,
         CursorPosY: initCursorY,
@@ -244,7 +257,7 @@ func getCursorPosition(data *data.EditorConfig) (int, int){
     return data.CursorPosX, data.CursorPosY
 }
 func setCursorPosition(data *data.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet), data.CursorPosX)
+    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet), (data.CursorPosX - data.ColOffSet))
     data.ABuf.WriteString(cursorPos)
 }
 
