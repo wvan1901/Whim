@@ -101,14 +101,14 @@ func editorProcessKeyPress(appData *data.EditorConfig){
     case LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW:
         editorMoveCursor(appData, keyReadRune)
     case PAGE_UP:
-        appData.CursorPosY = 1
+        appData.CursorPosY = 0
     case PAGE_DOWN:
         //TODO: Fix so it goes to bottom of file
-        appData.CursorPosY = appData.ScreenRows
+        appData.CursorPosY = appData.ScreenRows-1
     case HOME_KEY:
-        appData.CursorPosX = 1
+        appData.CursorPosX = 0
     case END_KEY:
-            appData.CursorPosX = appData.ScreenColumns
+            appData.CursorPosX = appData.ScreenColumns-1
     case DEL_KEY:
 
     default:
@@ -120,49 +120,48 @@ func editorProcessKeyPress(appData *data.EditorConfig){
 }
 
 func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
+    // We and implementing moving at new line by hitting left on the end of the line
+    // Or right at the end of the line
     var pointerRow *data.EditorRow
+    // Should it be appData.NumRows-1?
     if appData.CursorPosY >= appData.NumRows {
         pointerRow = nil
     } else {
-        pointerRow = appData.Row[appData.CursorPosY-1]
+        pointerRow = appData.Row[appData.CursorPosY]
     }
 
     switch inputRune {
         case LEFT_ARROW:
-            if (appData.CursorPosX != 1){
+            if (appData.CursorPosX != 0){
                 appData.CursorPosX--
             }
             break
         case RIGHT_ARROW:
-            if pointerRow != nil && appData.CursorPosX <= pointerRow.Size{
+            if pointerRow != nil && appData.CursorPosX < pointerRow.Size{
                 appData.CursorPosX++
             }
             break
         case DOWN_ARROW:
-            if appData.CursorPosY <= appData.NumRows{
+            if appData.CursorPosY < appData.NumRows{
                 appData.CursorPosY++
             }
             break
         case UP_ARROW:
-            if appData.CursorPosY != 1 {
+            if appData.CursorPosY != 0 {
                 appData.CursorPosY--
             }
             break
     }
-    //TODO: This breaks the space after the lines! FIX IT
     if appData.CursorPosY >= appData.NumRows {
         pointerRow = nil
     } else {
-        pointerRow = appData.Row[appData.CursorPosY-1]
+        pointerRow = appData.Row[appData.CursorPosY]
     }
     rowLength := 0
     if pointerRow != nil {
         rowLength = pointerRow.Size
     }
-    if rowLength < 1 {
-        rowLength = 1
-    }
-    if appData.CursorPosX > rowLength+1 {
+    if appData.CursorPosX > rowLength {
         appData.CursorPosX = rowLength
     }
 }
@@ -191,6 +190,7 @@ func die(){
 func editorDrawRows(editorData *data.EditorConfig){
     for y:=0; y<editorData.ScreenRows; y++ {
         fileRow := y + editorData.RowOffSet
+        // Maybe making it > will remove the ~ at the end?
         if fileRow >= editorData.NumRows{
             if editorData.NumRows == 0 && y == editorData.ScreenRows/3 {
                 welcome := fmt.Sprintf("Whim Editor -- version %s", WHIM_VERSION)
@@ -210,24 +210,26 @@ func editorDrawRows(editorData *data.EditorConfig){
             } else {
                 editorData.ABuf.WriteString("~")
             }
-
         } else {
-            rowlength := editorData.Row[fileRow].Size - editorData.ColOffSet
+            // rowlength := editorData.Row[fileRow].Size - editorData.ColOffSet
+            rowlength := editorData.Row[fileRow].RenderSize - editorData.ColOffSet
             if rowlength < 0 {
                 rowlength = 0
             }
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
-                shortenedString := (*editorData.Row[fileRow].Runes)[editorData.ColOffSet:rowlength]
+                // shortenedString := (*editorData.Row[fileRow].Runes)[editorData.ColOffSet:rowlength]
+                shortenedString := (*editorData.Row[fileRow].Render)[editorData.ColOffSet:rowlength]
                 editorData.ABuf.WriteString(shortenedString) 
             } else if rowlength == 0 {
                 editorData.ABuf.WriteString("")
             } else {
-                editorData.ABuf.WriteString((*editorData.Row[fileRow].Runes)[editorData.ColOffSet:])
+                editorData.ABuf.WriteString((*editorData.Row[fileRow].Render)[editorData.ColOffSet:])
             }
 
         }
         editorData.ABuf.WriteString("\033[K")
+        // Maybe this will fix the ~ at the end of file
         if y < editorData.ScreenRows -1 {
             editorData.ABuf.WriteString("\r\n")
         }
@@ -235,17 +237,22 @@ func editorDrawRows(editorData *data.EditorConfig){
 }
 
 func editorScroll(editorData *data.EditorConfig) {
-    if editorData.CursorPosY <= editorData.RowOffSet {
-        editorData.RowOffSet = editorData.CursorPosY - 1
+    editorData.RendorIndexX = 0
+    if editorData.CursorPosY < editorData.NumRows {
+        editorData.RendorIndexX = data.EditorRowCxToRx(editorData.Row[editorData.CursorPosY], editorData.CursorPosX)
     }
-    if editorData.CursorPosY > editorData.RowOffSet+editorData.ScreenRows { 
-        editorData.RowOffSet = editorData.CursorPosY - editorData.ScreenRows
+
+    if editorData.CursorPosY < editorData.RowOffSet {
+        editorData.RowOffSet = editorData.CursorPosY
     }
-    if editorData.CursorPosX <= editorData.ColOffSet{
-        editorData.ColOffSet = editorData.CursorPosX - 1
+    if editorData.CursorPosY >= editorData.RowOffSet+editorData.ScreenRows { 
+        editorData.RowOffSet = editorData.CursorPosY - editorData.ScreenRows + 1
     }
-    if editorData.CursorPosX > editorData.ColOffSet + editorData.ScreenColumns {
-        editorData.ColOffSet = editorData.CursorPosX - editorData.ScreenColumns
+    if editorData.RendorIndexX < editorData.ColOffSet{
+        editorData.ColOffSet = editorData.RendorIndexX
+    }
+    if editorData.RendorIndexX >= editorData.ColOffSet + editorData.ScreenColumns {
+        editorData.ColOffSet = editorData.RendorIndexX - editorData.ScreenColumns + 1
     }
 }
 
@@ -259,7 +266,7 @@ func getWindowSize()(int, int){
 
 func initEditor(oldState *term.State) data.EditorConfig{
     width, height := getWindowSize()
-    initCursorX, initCursorY := 2,2
+    initCursorX, initCursorY := 1,1
     var newBuf strings.Builder
     newBuf.Reset()
     newRowSlice := make([]*data.EditorRow, 0)
@@ -268,6 +275,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         ScreenRows: height,
         RowOffSet: 0,
         ColOffSet: 0,
+        RendorIndexX: 0,
         ScreenColumns: width,
         CursorPosX: initCursorX,
         CursorPosY: initCursorY,
@@ -277,14 +285,8 @@ func initEditor(oldState *term.State) data.EditorConfig{
     }
 }
 
-//TODO: Check if setting the cursor works!
-//?: should I deprecate this method?
-func getCursorPosition(data *data.EditorConfig) (int, int){
-    fmt.Printf("\033[%d;%dH", data.CursorPosY, data.CursorPosX) // Set cursor position    
-    return data.CursorPosX, data.CursorPosY
-}
 func setCursorPosition(data *data.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet), (data.CursorPosX - data.ColOffSet))
+    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
     data.ABuf.WriteString(cursorPos)
 }
 
