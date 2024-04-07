@@ -100,15 +100,35 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         break
     case LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW:
         editorMoveCursor(appData, keyReadRune)
-    case PAGE_UP:
-        appData.CursorPosY = 0
-    case PAGE_DOWN:
-        //TODO: Fix so it goes to bottom of file
-        appData.CursorPosY = appData.ScreenRows-1
+        break
+    case PAGE_UP, PAGE_DOWN:
+        if keyReadRune == PAGE_UP {
+            appData.CursorPosY = appData.RowOffSet
+        } else if keyReadRune == PAGE_DOWN {
+            appData.CursorPosY = appData.RowOffSet+appData.ScreenRows-1
+            if appData.CursorPosY > appData.NumRows {
+                appData.CursorPosY = appData.NumRows
+            }
+        }
+        times := appData.ScreenRows
+        for times>0 {
+            directionRune := DOWN_ARROW
+            if keyReadRune == PAGE_UP {
+                directionRune = UP_ARROW
+            }
+            editorMoveCursor(appData, rune(directionRune))
+            times--
+        }
+        break
     case HOME_KEY:
         appData.CursorPosX = 0
+        break
     case END_KEY:
-            appData.CursorPosX = appData.ScreenColumns-1
+        // appData.CursorPosX = appData.ScreenColumns-1
+        if appData.CursorPosY < appData.NumRows{
+            appData.CursorPosX = appData.Row[appData.CursorPosY].Size
+        }
+        break
     case DEL_KEY:
 
     default:
