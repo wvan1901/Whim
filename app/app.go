@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 	"strings"
+	"time"
 	"wicho/whim/app/data"
 	"wicho/whim/app/fileio"
 	"wicho/whim/input"
@@ -37,6 +38,7 @@ func RunApp(){
     if len(argsWithProg) >= 2 {
         fileio.EditorOpen(&AppData, argsWithProg[1])
     }
+    editorSetStatusMessage(&AppData, "HELP: Ctrl-C, q = Quit")
     for {
         editorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
@@ -192,6 +194,7 @@ func editorRefreshScreen(appData *data.EditorConfig){
     appData.ABuf.WriteString("\033[H")
     editorDrawRows(appData)
     editorDrawStatusBar(appData)
+    editorDrawMessageBar(appData)
     
     setCursorPosition(appData)
 
@@ -306,6 +309,28 @@ func editorDrawStatusBar(appData *data.EditorConfig){
         }
     }
     appData.ABuf.WriteString("\033[m")
+    appData.ABuf.WriteString("\r\n")
+}
+
+func editorSetStatusMessage(appData *data.EditorConfig, messages ...string){
+    newStatusMsg := ""
+    for _, msg := range messages {
+        newStatusMsg += msg
+    }
+    appData.StatusMessage = newStatusMsg
+    appData.StatusMessageTime = time.Now()
+}
+
+func editorDrawMessageBar(appData *data.EditorConfig){
+    appData.ABuf.WriteString("\033[K")
+    messageLength := len(appData.StatusMessage)
+    if messageLength > appData.ScreenColumns{
+        messageLength = appData.ScreenColumns
+    }
+    if messageLength>0 && (time.Since(appData.StatusMessageTime) < 5*time.Second){//1 sec = 1000000000 nano sec
+        appData.ABuf.WriteString(appData.StatusMessage[:messageLength])
+    }
+
 }
 
 func getWindowSize()(int, int){
@@ -318,7 +343,7 @@ func getWindowSize()(int, int){
 
 func initEditor(oldState *term.State) data.EditorConfig{
     width, height := getWindowSize()
-    height -= 1 //Making space for status bar
+    height -= 2 //Making space for status bar
     initCursorX, initCursorY := 1,1
     var newBuf strings.Builder
     newBuf.Reset()
@@ -336,6 +361,8 @@ func initEditor(oldState *term.State) data.EditorConfig{
         Row: newRowSlice,
         NumRows: 0,
         FileName: nil,
+        StatusMessage: "",
+        StatusMessageTime: time.Now(),
     }
 }
 

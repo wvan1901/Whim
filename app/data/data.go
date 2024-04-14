@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"golang.org/x/term"
 )
@@ -25,6 +26,8 @@ type EditorConfig struct {
     Row []*EditorRow
     FileName *string
     ABuf strings.Builder
+    StatusMessage string
+    StatusMessageTime time.Time
 }
 
 type EditorRow struct {
