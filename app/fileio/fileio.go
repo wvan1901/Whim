@@ -12,6 +12,8 @@ func EditorOpen(appData *data.EditorConfig, fileName string){
         appData.Die()
     }
     defer file.Close()
+    // appData.FileName = file.Name()
+    appData.FileName = &fileName
 
     line := ""
     totalLines := 0

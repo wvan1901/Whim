@@ -191,6 +191,7 @@ func editorRefreshScreen(appData *data.EditorConfig){
     appData.ABuf.WriteString("\033[?25l")
     appData.ABuf.WriteString("\033[H")
     editorDrawRows(appData)
+    editorDrawStatusBar(appData)
     
     setCursorPosition(appData)
 
@@ -250,9 +251,10 @@ func editorDrawRows(editorData *data.EditorConfig){
         }
         editorData.ABuf.WriteString("\033[K")
         // Maybe this will fix the ~ at the end of file
-        if y < editorData.ScreenRows -1 {
-            editorData.ABuf.WriteString("\r\n")
-        }
+        // if y < editorData.ScreenRows -1 {
+        //     editorData.ABuf.WriteString("\r\n")
+        // }
+        editorData.ABuf.WriteString("\r\n")
     }
 }
 
@@ -276,6 +278,36 @@ func editorScroll(editorData *data.EditorConfig) {
     }
 }
 
+func editorDrawStatusBar(appData *data.EditorConfig){
+    appData.ABuf.WriteString("\033[7m")
+    length := 0
+    status := "[No Name]"
+    rightSideStatus := ""
+    rightSideLength := 0
+    if appData.FileName != nil {
+        status = *appData.FileName
+        length = len(status)
+        if length>20{
+            length = 20
+        }
+        status = status[:length]+fmt.Sprintf(" - %d lines", appData.NumRows)
+        length = len(status)
+        rightSideStatus = fmt.Sprintf("%d/%d", appData.CursorPosY+1, appData.NumRows)
+        rightSideLength = len(rightSideStatus)
+    }
+    appData.ABuf.WriteString(status)
+    for length < appData.ScreenColumns {
+        if (appData.ScreenColumns - length) == rightSideLength{
+            appData.ABuf.WriteString(rightSideStatus)
+            break
+        } else {
+            appData.ABuf.WriteString(" ")
+            length++
+        }
+    }
+    appData.ABuf.WriteString("\033[m")
+}
+
 func getWindowSize()(int, int){
     width, height, err := term.GetSize(0)
     if err != nil {
@@ -286,6 +318,7 @@ func getWindowSize()(int, int){
 
 func initEditor(oldState *term.State) data.EditorConfig{
     width, height := getWindowSize()
+    height -= 1 //Making space for status bar
     initCursorX, initCursorY := 1,1
     var newBuf strings.Builder
     newBuf.Reset()
@@ -302,6 +335,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         ABuf: newBuf,
         Row: newRowSlice,
         NumRows: 0,
+        FileName: nil,
     }
 }
 

@@ -23,6 +23,7 @@ type EditorConfig struct {
     RendorIndexX int
     NumRows int
     Row []*EditorRow
+    FileName *string
     ABuf strings.Builder
 }
 
@@ -86,6 +87,7 @@ func editorUpdateRow(row *EditorRow){
 
 // IDEA: Make the cursor go to the end of the tab
 // IDEA: Make the visual part not go over 1 for x and y
+// TODO: Fix Tabs when going to a diffrent line
 func EditorRowCxToRx(row *EditorRow, cursorPosX int) int {
     renderX := 0
     for i, aRune := range []rune(*row.Runes) {
