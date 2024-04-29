@@ -164,7 +164,7 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
             }
             break
         case DOWN_ARROW:
-            if appData.CursorPosY < appData.NumRows{
+            if appData.CursorPosY < appData.NumRows-1{
                 appData.CursorPosY++
             }
             break
