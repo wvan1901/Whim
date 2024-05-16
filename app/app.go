@@ -16,6 +16,7 @@ import (
 )
 
 const (
+    NOTHINGKEY= 999 //This key will do nothing when pressed
     CONTROLCASCII = 1000
     CONTROLFIRSTBYTE = 1001
     LEFT_ARROW = 1002
@@ -28,6 +29,7 @@ const (
     END_KEY = 1009
     DEL_KEY = 1010
     ESC = 1011
+    BACKSPACE = 1012
     WHIM_VERSION = "0.0.1"
 )
 
@@ -62,8 +64,8 @@ func editorReadKey() rune {
     inputBytes := input.ReaderBytes()
     inputRune, _ := utf8.DecodeRune(inputBytes)
     if unicode.IsControl(inputRune){
-        // fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
-        // os.Exit(1)
+        //fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
+        //os.Exit(1)
         switch inputRune {
         case 3://CTRL-C
             return CONTROLCASCII
@@ -92,9 +94,13 @@ func editorReadKey() rune {
             case 0://ESC KEY
                 return ESC
             }
-            return CONTROLFIRSTBYTE
+            return NOTHINGKEY
+        case 127://BACKSPACE
+            return BACKSPACE
+        case 13://ENTER
+            return '\r'
         default:
-            return 0
+            return NOTHINGKEY
         }
     }
     switch string(inputRune) {
@@ -109,13 +115,22 @@ func editorReadKey() rune {
     case "l":
         return RIGHT_ARROW
     }
-    fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
     return inputRune
 }
 
 func editorProcessKeyPress(appData *data.EditorConfig){
     keyReadRune := editorReadKey()
     switch keyReadRune {
+    case '\r':
+        //TODO: Implement Backspace
+        break
+    case BACKSPACE:
+        //TODO: Implement Backspace
+        break
+    case DEL_KEY:
+        break
+    case ESC:
+        break
     case CONTROLCASCII:
         fmt.Println("<C>")
         disableRawMode(&appData.OldTerminalState)
@@ -154,14 +169,15 @@ func editorProcessKeyPress(appData *data.EditorConfig){
             appData.CursorPosX = appData.Row[appData.CursorPosY].Size
         }
         break
-    case DEL_KEY:
-
+    case NOTHINGKEY:
+        break
     default:
         // appData.ABuf.WriteRune(keyReadRune)
         // fmt.Println(keyReadRune)
         // disableRawMode(&appData.OldTerminalState)
         // defer os.Exit(0)
         data.EditorInsertChar(appData, keyReadRune)
+        break
     }
 }
 
