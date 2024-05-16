@@ -16,17 +16,18 @@ import (
 )
 
 const (
-    CONTROLCASCII = 3
-    CONTROLFIRSTBYTE = 27
-    LEFT_ARROW = 68
-    RIGHT_ARROW = 67
-    DOWN_ARROW = 66
-    UP_ARROW = 65
-    PAGE_UP = 53
-    PAGE_DOWN = 54
-    HOME_KEY = 72
-    END_KEY = 70
-    DEL_KEY = 51
+    CONTROLCASCII = 1000
+    CONTROLFIRSTBYTE = 1001
+    LEFT_ARROW = 1002
+    RIGHT_ARROW = 1003
+    DOWN_ARROW = 1004
+    UP_ARROW = 1005
+    PAGE_UP = 1006
+    PAGE_DOWN = 1007
+    HOME_KEY = 1008
+    END_KEY = 1009
+    DEL_KEY = 1010
+    ESC = 1011
     WHIM_VERSION = "0.0.1"
 )
 
@@ -61,16 +62,37 @@ func editorReadKey() rune {
     inputBytes := input.ReaderBytes()
     inputRune, _ := utf8.DecodeRune(inputBytes)
     if unicode.IsControl(inputRune){
+        // fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
+        // os.Exit(1)
         switch inputRune {
-        case CONTROLCASCII:
-            return inputRune
-        case CONTROLFIRSTBYTE:
+        case 3://CTRL-C
+            return CONTROLCASCII
+        case 27://First byte is A CTRL byte
+            // Should add another switch statement that deals with this?
             returnRune, _ := utf8.DecodeRune(inputBytes[2:])
-            // fmt.Println("BYTES:", inputBytes)
-            // die()
-            return returnRune
-        case PAGE_UP, PAGE_DOWN:
-            return inputRune
+            switch returnRune{
+            case 53://PAGE UP
+                return PAGE_UP
+            case 54://PAGE DOWN
+                return PAGE_DOWN
+            case 68://LEFT ARROW
+                return LEFT_ARROW
+            case 67://RIGHT ARROW
+                return RIGHT_ARROW
+            case 66://DOWN ARROW
+                return DOWN_ARROW
+            case 65://UP ARROW
+                return UP_ARROW
+            case 72://HOME KEY
+                return HOME_KEY
+            case 70://END KEY
+                return END_KEY
+            case 51://DEL KEY
+                return DEL_KEY
+            case 0://ESC KEY
+                return ESC
+            }
+            return CONTROLFIRSTBYTE
         default:
             return 0
         }
@@ -87,6 +109,7 @@ func editorReadKey() rune {
     case "l":
         return RIGHT_ARROW
     }
+    fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
     return inputRune
 }
 
@@ -134,10 +157,11 @@ func editorProcessKeyPress(appData *data.EditorConfig){
     case DEL_KEY:
 
     default:
-        appData.ABuf.WriteRune(keyReadRune)
+        // appData.ABuf.WriteRune(keyReadRune)
         // fmt.Println(keyReadRune)
         // disableRawMode(&appData.OldTerminalState)
         // defer os.Exit(0)
+        data.EditorInsertChar(appData, keyReadRune)
     }
 }
 

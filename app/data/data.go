@@ -106,3 +106,24 @@ func EditorRowCxToRx(row *EditorRow, cursorPosX int) int {
     }
     return renderX
 }
+
+func editorRowInsertChar(row *EditorRow, at int, r rune){
+    if (at < 0 || at > row.Size){
+        at = row.Size
+    }
+    // TODO: Insert Rune in row
+    newRunes := (*row.Runes)[:at] + string(r) + (*row.Runes)[at:]
+    row.Runes = &newRunes
+
+    row.Size += 1
+    editorUpdateRow(row)
+}
+
+//TODO: TEST Func
+func EditorInsertChar(appData *EditorConfig, r rune){
+    if appData.CursorPosY == appData.NumRows {
+        appData.EditorAppendRow("")
+    }
+    editorRowInsertChar(appData.Row[appData.CursorPosY], appData.CursorPosX, r)
+    appData.CursorPosX += 1
+}
