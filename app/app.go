@@ -30,6 +30,7 @@ const (
     DEL_KEY = 1010
     ESC = 1011
     BACKSPACE = 1012
+    CONTROL_S = 1013
     WHIM_VERSION = "0.0.1"
 )
 
@@ -41,7 +42,7 @@ func RunApp(){
     if len(argsWithProg) >= 2 {
         fileio.EditorOpen(&AppData, argsWithProg[1])
     }
-    editorSetStatusMessage(&AppData, "HELP: Ctrl-C, q = Quit")
+    AppData.EditorSetStatusMessage("HELP: Ctrl-s = save | Ctrl-C, q = Quit")
     for {
         editorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
@@ -99,6 +100,8 @@ func editorReadKey() rune {
             return BACKSPACE
         case 13://ENTER
             return '\r'
+        case 19://Ctrl-s
+            return CONTROL_S
         default:
             return NOTHINGKEY
         }
@@ -137,6 +140,9 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         fmt.Print("\033[2J")
         fmt.Print("\033[H")
         defer os.Exit(0)
+        break
+    case CONTROL_S:
+        fileio.EditorSave(appData)
         break
     case LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW:
         editorMoveCursor(appData, keyReadRune)
@@ -334,6 +340,9 @@ func editorDrawStatusBar(appData *data.EditorConfig){
             length = 20
         }
         status = status[:length]+fmt.Sprintf(" - %d lines", appData.NumRows)
+        if appData.Dirty > 0{
+            status += "(Modified)"
+        }
         length = len(status)
         rightSideStatus = fmt.Sprintf("%d/%d", appData.CursorPosY+1, appData.NumRows)
         rightSideLength = len(rightSideStatus)
@@ -350,15 +359,6 @@ func editorDrawStatusBar(appData *data.EditorConfig){
     }
     appData.ABuf.WriteString("\033[m")
     appData.ABuf.WriteString("\r\n")
-}
-
-func editorSetStatusMessage(appData *data.EditorConfig, messages ...string){
-    newStatusMsg := ""
-    for _, msg := range messages {
-        newStatusMsg += msg
-    }
-    appData.StatusMessage = newStatusMsg
-    appData.StatusMessageTime = time.Now()
 }
 
 func editorDrawMessageBar(appData *data.EditorConfig){
@@ -403,6 +403,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         FileName: nil,
         StatusMessage: "",
         StatusMessageTime: time.Now(),
+        Dirty: 0,
     }
 }
 

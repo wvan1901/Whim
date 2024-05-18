@@ -28,6 +28,7 @@ type EditorConfig struct {
     ABuf strings.Builder
     StatusMessage string
     StatusMessageTime time.Time
+    Dirty int
 }
 
 type EditorRow struct {
@@ -61,6 +62,7 @@ func (editorData *EditorConfig) EditorAppendRow(aString string){
     newSlice := append(editorData.Row, &newRow)
     editorData.Row = newSlice
     editorData.NumRows++
+    editorData.Dirty++
 }
 
 func editorUpdateRow(row *EditorRow){
@@ -119,11 +121,23 @@ func editorRowInsertChar(row *EditorRow, at int, r rune){
     editorUpdateRow(row)
 }
 
-//TODO: TEST Func
 func EditorInsertChar(appData *EditorConfig, r rune){
     if appData.CursorPosY == appData.NumRows {
         appData.EditorAppendRow("")
     }
     editorRowInsertChar(appData.Row[appData.CursorPosY], appData.CursorPosX, r)
+    //? Should this be moved to editorRowInsertChar?
+    appData.Dirty++
     appData.CursorPosX += 1
+}
+
+//TODO: this should probably be moved elsewhere
+func (data *EditorConfig) EditorSetStatusMessage(messages ...string){
+    newStatusMsg := ""
+    for _, msg := range messages {
+        newStatusMsg += msg
+    }
+    data.StatusMessage = newStatusMsg
+    data.StatusMessageTime = time.Now()
+    
 }
