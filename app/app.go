@@ -125,16 +125,16 @@ func editorProcessKeyPress(appData *data.EditorConfig){
     keyReadRune := editorReadKey()
     switch keyReadRune {
     case '\r':
-        //TODO: Implement Backspace
+        //TODO: Implement Enter
         break
-    case BACKSPACE:
+    case BACKSPACE, DEL_KEY:
         //TODO: Implement Backspace
-        break
-    case DEL_KEY:
+        data.EditorDelChar(appData)
         break
     case ESC:
         break
     case CONTROLCASCII:
+        //TODO: Add a warning message if file is dirty and ask User to Confirm
         fmt.Println("<C>")
         disableRawMode(&appData.OldTerminalState)
         fmt.Print("\033[2J")

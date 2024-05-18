@@ -113,7 +113,6 @@ func editorRowInsertChar(row *EditorRow, at int, r rune){
     if (at < 0 || at > row.Size){
         at = row.Size
     }
-    // TODO: Insert Rune in row
     newRunes := (*row.Runes)[:at] + string(r) + (*row.Runes)[at:]
     row.Runes = &newRunes
 
@@ -140,4 +139,28 @@ func (data *EditorConfig) EditorSetStatusMessage(messages ...string){
     data.StatusMessage = newStatusMsg
     data.StatusMessageTime = time.Now()
     
+}
+
+func editorRowDelChar(row *EditorRow, at int){
+    if at < 0 || at > row.Size {
+        return
+    }
+    sliceRunes := []rune(*row.Runes)
+    result := append(sliceRunes[0:at], sliceRunes[at+1:]...)
+    newRunes := string(result)
+    row.Runes = &newRunes
+    row.Size = len(*row.Runes)
+    editorUpdateRow(row)
+}
+
+func EditorDelChar(appData *EditorConfig){
+    if appData.CursorPosY == appData.NumRows {
+        return
+    }
+    curRow := appData.Row[appData.CursorPosY]
+    if appData.CursorPosX > 0 {
+        editorRowDelChar(curRow, appData.CursorPosX - 1)
+        appData.CursorPosX--
+        appData.Dirty++
+    }
 }
