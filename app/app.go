@@ -128,7 +128,6 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         //TODO: Implement Enter
         break
     case BACKSPACE, DEL_KEY:
-        //TODO: Implement Backspace
         data.EditorDelChar(appData)
         break
     case ESC:

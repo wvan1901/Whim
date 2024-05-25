@@ -157,10 +157,37 @@ func EditorDelChar(appData *EditorConfig){
     if appData.CursorPosY == appData.NumRows {
         return
     }
+    if appData.CursorPosX == 0 && appData.CursorPosY == 0{
+        return
+    }
     curRow := appData.Row[appData.CursorPosY]
     if appData.CursorPosX > 0 {
         editorRowDelChar(curRow, appData.CursorPosX - 1)
         appData.CursorPosX--
         appData.Dirty++
+    } else {
+        appData.CursorPosX = appData.Row[appData.CursorPosY-1].Size
+        editorRowAppendString(appData.Row[appData.CursorPosY-1], *curRow.Runes)
+        editorDelRow(appData, appData.CursorPosY)
+        appData.CursorPosY--
     }
 }
+
+func editorDelRow(appData *EditorConfig, at int){
+    if at < 0 || at >= appData.NumRows{
+        return
+    }
+    newRows := append(appData.Row[:at], appData.Row[at+1:]...)
+    appData.Row = newRows
+
+    appData.NumRows--
+    appData.Dirty++
+}
+
+func editorRowAppendString(row *EditorRow, newString string){
+    newRowString := *row.Runes + newString
+    row.Runes = &newRowString
+    row.Size = row.Size + len(newString) + '\n'
+    editorUpdateRow(row)
+}
+
