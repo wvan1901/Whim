@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"wicho/whim/app/data"
+	"wicho/whim/app/input"
 )
 
 func EditorOpen(appData *data.EditorConfig, fileName string){
@@ -22,14 +23,19 @@ func EditorOpen(appData *data.EditorConfig, fileName string){
     for scanner.Scan() {
         totalLines++
         line = scanner.Text()
-        appData.EditorAppendRow(line)
+        appData.EditorInsertRow(appData.NumRows, line)
     }
     appData.Dirty = 0
 }
 
+//TODO: App is broken when trying to type when filename == nil
 func EditorSave(appData *data.EditorConfig){
     if appData.FileName == nil {
-        return
+        appData.FileName = input.EditorPrompt(appData, "(ESC to cancel) Save as: ")
+        if appData.FileName == nil {
+            appData.EditorSetStatusMessage("Save Aborted")
+            return
+        }
     }
 
     fileIntoString := editorRowsToString(appData)

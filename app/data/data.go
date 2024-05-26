@@ -50,17 +50,27 @@ func (appData *EditorConfig) Die(){
 /*
     Row Operations
 */
-func (editorData *EditorConfig) EditorAppendRow(aString string){
+func (editorData *EditorConfig) EditorInsertRow(at int, aString string){
+    if at < 0 || at > editorData.NumRows {
+        return
+    }
+
     newRow := EditorRow{
         Size: len(aString),
         Runes: &aString,
         Render: nil,
         RenderSize: 0,
     }
-    //Render string
-    editorUpdateRow(&newRow)
-    newSlice := append(editorData.Row, &newRow)
+
+    //NOTE: This Was Erroring Due To Trying At Add Row At Index
+    var firstHalfSlice []*EditorRow
+    firstHalfSlice = append(firstHalfSlice, editorData.Row[:at]...)
+    var secondHalfSlice []*EditorRow
+    secondHalfSlice = append(secondHalfSlice, editorData.Row[at:]...)
+    newSlice := append(firstHalfSlice, &newRow)
+    newSlice = append(newSlice, secondHalfSlice...)
     editorData.Row = newSlice
+    editorUpdateRow(&newRow)
     editorData.NumRows++
     editorData.Dirty++
 }
@@ -122,7 +132,7 @@ func editorRowInsertChar(row *EditorRow, at int, r rune){
 
 func EditorInsertChar(appData *EditorConfig, r rune){
     if appData.CursorPosY == appData.NumRows {
-        appData.EditorAppendRow("")
+        appData.EditorInsertRow(appData.NumRows, "")
     }
     editorRowInsertChar(appData.Row[appData.CursorPosY], appData.CursorPosX, r)
     //? Should this be moved to editorRowInsertChar?
@@ -187,7 +197,24 @@ func editorDelRow(appData *EditorConfig, at int){
 func editorRowAppendString(row *EditorRow, newString string){
     newRowString := *row.Runes + newString
     row.Runes = &newRowString
+    //TODO: Why is there a + '\n' for the Size?
     row.Size = row.Size + len(newString) + '\n'
     editorUpdateRow(row)
 }
 
+func EditorInsertNewLine(appData *EditorConfig){
+    if appData.CursorPosX == 0 {
+        appData.EditorInsertRow(appData.CursorPosY, "")
+    } else {
+        curRow := appData.Row[appData.CursorPosY]
+        leftSideString := (*curRow.Runes)[:appData.CursorPosX]
+        rightSideString := (*curRow.Runes)[appData.CursorPosX:]
+        curRow.Runes = &leftSideString
+        fmt.Println("Add:", &leftSideString)
+        appData.EditorInsertRow(appData.CursorPosY+1, rightSideString)
+        curRow.Size = len(*curRow.Runes)
+        editorUpdateRow(curRow)
+    }
+    appData.CursorPosY++
+    appData.CursorPosX = 0
+}
