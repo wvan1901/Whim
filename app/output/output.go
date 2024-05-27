@@ -70,14 +70,21 @@ func editorDrawRows(editorData *consts.EditorConfig){
                 renderHighlight = editorData.Row[fileRow].Highlights[editorData.ColOffSet:]
             }
             renderRunes := []rune(renderString)
+            currentColor := -1
             for j := 0; j < len(renderRunes); j++{
                 if renderHighlight[j] == consts.HL_NORMAL {
-                    editorData.ABuf.WriteString("\033[39m")
+                    if currentColor != -1 {
+                        editorData.ABuf.WriteString("\033[39m")
+                        currentColor = -1
+                    }
                     editorData.ABuf.WriteString(string(renderRunes[j]))
                 } else {
                     colorInt := highlight.EditorSyntaxToColor(renderHighlight[j])
-                    unicodeColor := fmt.Sprintf("\033[%dm", colorInt)
-                    editorData.ABuf.WriteString(unicodeColor)
+                    if colorInt != currentColor {
+                        currentColor = colorInt
+                        unicodeColor := fmt.Sprintf("\033[%dm", colorInt)
+                        editorData.ABuf.WriteString(unicodeColor)
+                    }
                     editorData.ABuf.WriteString(string(renderRunes[j]))
                 }
             }

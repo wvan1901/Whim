@@ -7,6 +7,7 @@ import (
 	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
 	"wicho/whim/app/input"
+	"wicho/whim/app/row"
 )
 
 func EditorOpen(appData *consts.EditorConfig, fileName string){
@@ -24,7 +25,7 @@ func EditorOpen(appData *consts.EditorConfig, fileName string){
     for scanner.Scan() {
         totalLines++
         line = scanner.Text()
-        data.EditorInsertRow(appData, appData.NumRows, line)
+        row.EditorInsertRow(appData, appData.NumRows, line)
     }
     appData.Dirty = 0
 }

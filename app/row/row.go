@@ -72,6 +72,32 @@ func EditorUpdateRow(row *consts.EditorRow){
 }
 
 //editorInsertRow
+func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
+    if at < 0 || at > editorData.NumRows {
+        return
+    }
+
+    newRow := consts.EditorRow{
+        Size: len(aString),
+        Runes: &aString,
+        Render: nil,
+        RenderSize: 0,
+        Highlights: nil,
+    }
+
+    //NOTE: This Was Erroring Due To Trying At Add Row At Index
+    var firstHalfSlice []*consts.EditorRow
+    firstHalfSlice = append(firstHalfSlice, editorData.Row[:at]...)
+    var secondHalfSlice []*consts.EditorRow
+    secondHalfSlice = append(secondHalfSlice, editorData.Row[at:]...)
+    newSlice := append(firstHalfSlice, &newRow)
+    newSlice = append(newSlice, secondHalfSlice...)
+    editorData.Row = newSlice
+    EditorUpdateRow(&newRow)
+    editorData.NumRows++
+    editorData.Dirty++
+}
+
 
 //editorFreeRow
 
