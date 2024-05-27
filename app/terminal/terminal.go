@@ -74,8 +74,10 @@ func EditorReadKey() rune {
             return consts.BACKSPACE
         case 13://ENTER
             return '\r'
-        case 19://Ctrl-s
+        case 19://CTRL-S
             return consts.CONTROL_S
+        case 6://CTRL-F
+            return consts.CONTROL_F
         default:
             return consts.NOTHINGKEY
         }

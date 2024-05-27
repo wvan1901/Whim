@@ -16,6 +16,7 @@ const (
     ESC = 1011
     BACKSPACE = 1012
     CONTROL_S = 1013
+    CONTROL_F = 1014
     WHIM_VERSION = "0.0.1"
 )
 

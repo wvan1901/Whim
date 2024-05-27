@@ -218,3 +218,18 @@ func EditorInsertNewLine(appData *EditorConfig){
     appData.CursorPosY++
     appData.CursorPosX = 0
 }
+
+// This is the oppisite of EditorRowCxToRx
+func EditorRowRxToCx(curRow *EditorRow, renderPosX int) int {
+    curRx := 0
+    for cursorPosX := 0; cursorPosX < curRow.Size; cursorPosX++{
+        if (*curRow.Runes)[cursorPosX] == '\t'{
+            curRx += (SPACES_IN_TAB - 1) - (curRx % SPACES_IN_TAB)
+        }
+        curRx++
+        if curRx > renderPosX {
+            return cursorPosX
+        }
+    }
+    return curRow.Size-1
+}

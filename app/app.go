@@ -7,6 +7,7 @@ import (
 	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
 	"wicho/whim/app/fileio"
+	"wicho/whim/app/find"
 	"wicho/whim/app/output"
 	"wicho/whim/app/terminal"
 
@@ -15,6 +16,8 @@ import (
 	"golang.org/x/term"
 )
 
+//A Solution to errors with no file, is check for input once it get ones then we add a row
+// This could be a mode,
 func RunApp(){
     oldState := terminal.EnableRawMode()
     defer terminal.DisableRawMode(&oldState)
@@ -23,7 +26,7 @@ func RunApp(){
     if len(argsWithProg) >= 2 {
         fileio.EditorOpen(&AppData, argsWithProg[1])
     }
-    AppData.EditorSetStatusMessage("HELP: Ctrl-s = save | Ctrl-C, q = Quit")
+    AppData.EditorSetStatusMessage("HELP: Ctrl-s = save | Ctrl-C, q = Quit | Ctrl-F = Find")
     for {
         output.EditorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
@@ -83,6 +86,9 @@ func editorProcessKeyPress(appData *data.EditorConfig){
         if appData.CursorPosY < appData.NumRows{
             appData.CursorPosX = appData.Row[appData.CursorPosY].Size
         }
+        break
+    case consts.CONTROL_F:
+        find.EditorFind(appData)
         break
     case consts.NOTHINGKEY:
         break
