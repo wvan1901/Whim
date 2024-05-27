@@ -8,7 +8,6 @@ import (
 )
 
 func editorFindCallback(appData *data.EditorConfig, query string, aRune rune){
-    // TODO: These should persist so we could make a struct and pass it along
     if appData.StringFindData == nil {
         appData.StringFindData = &data.FindData{
             LastMatch: -1,

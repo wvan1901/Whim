@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"time"
+	"unicode"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
 )
@@ -54,16 +55,25 @@ func editorDrawRows(editorData *data.EditorConfig){
             if rowlength < 0 {
                 rowlength = 0
             }
+            renderString := ""
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
-                shortenedString := (*editorData.Row[fileRow].Render)[editorData.ColOffSet:rowlength]
-                editorData.ABuf.WriteString(shortenedString) 
+                renderString = (*editorData.Row[fileRow].Render)[editorData.ColOffSet:rowlength]
             } else if rowlength == 0 {
-                editorData.ABuf.WriteString("")
+                renderString = ""
             } else {
-                editorData.ABuf.WriteString((*editorData.Row[fileRow].Render)[editorData.ColOffSet:])
+                renderString = (*editorData.Row[fileRow].Render)[editorData.ColOffSet:]
             }
-
+            renderRunes := []rune(renderString)
+            for j := 0; j < len(renderRunes); j++{
+                if unicode.IsDigit(renderRunes[j]){
+                    editorData.ABuf.WriteString("\033[31m")
+                    editorData.ABuf.WriteString(string(renderRunes[j]))
+                    editorData.ABuf.WriteString("\033[39m")
+                } else {
+                    editorData.ABuf.WriteString(string(renderRunes[j]))
+                }
+            }
         }
         editorData.ABuf.WriteString("\033[K")
         editorData.ABuf.WriteString("\r\n")

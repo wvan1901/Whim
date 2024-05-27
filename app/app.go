@@ -149,55 +149,6 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
     }
 }
 
-func editorDrawRows(editorData *data.EditorConfig){
-    for y:=0; y<editorData.ScreenRows; y++ {
-        fileRow := y + editorData.RowOffSet
-        // Maybe making it > will remove the ~ at the end?
-        if fileRow >= editorData.NumRows{
-            if editorData.NumRows == 0 && y == editorData.ScreenRows/3 {
-                welcome := fmt.Sprintf("Whim Editor -- version %s", consts.WHIM_VERSION)
-                if len(welcome) > editorData.ScreenColumns{
-                    welcome = "v:"+ consts.WHIM_VERSION
-                }
-                padding := (editorData.ScreenColumns - len(welcome))/2
-                if padding>0{
-                    editorData.ABuf.WriteString("~")
-                    padding--
-                }
-                for padding>0 {
-                    padding--
-                    editorData.ABuf.WriteString(" ")
-                }
-                editorData.ABuf.WriteString(welcome)
-            } else {
-                editorData.ABuf.WriteString("~")
-            }
-        } else {
-            // rowlength := editorData.Row[fileRow].Size - editorData.ColOffSet
-            rowlength := editorData.Row[fileRow].RenderSize - editorData.ColOffSet
-            if rowlength < 0 {
-                rowlength = 0
-            }
-            if rowlength > editorData.ScreenColumns {
-                rowlength = editorData.ScreenColumns
-                // shortenedString := (*editorData.Row[fileRow].Runes)[editorData.ColOffSet:rowlength]
-                shortenedString := (*editorData.Row[fileRow].Render)[editorData.ColOffSet:rowlength]
-                editorData.ABuf.WriteString(shortenedString) 
-            } else if rowlength == 0 {
-                editorData.ABuf.WriteString("")
-            } else {
-                editorData.ABuf.WriteString((*editorData.Row[fileRow].Render)[editorData.ColOffSet:])
-            }
-
-        }
-        editorData.ABuf.WriteString("\033[K")
-        // Maybe this will fix the ~ at the end of file
-        // if y < editorData.ScreenRows -1 {
-        //     editorData.ABuf.WriteString("\r\n")
-        // }
-        editorData.ABuf.WriteString("\r\n")
-    }
-}
 
 func initEditor(oldState *term.State) data.EditorConfig{
     width, height := terminal.GetWindowSize()
@@ -224,10 +175,5 @@ func initEditor(oldState *term.State) data.EditorConfig{
         StringFindData: nil,
         Dirty: 0,
     }
-}
-
-func setCursorPosition(data *data.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
-    data.ABuf.WriteString(cursorPos)
 }
 
