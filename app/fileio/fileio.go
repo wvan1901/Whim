@@ -31,7 +31,7 @@ func EditorOpen(appData *data.EditorConfig, fileName string){
 //TODO: App is broken when trying to type when filename == nil
 func EditorSave(appData *data.EditorConfig){
     if appData.FileName == nil {
-        appData.FileName = input.EditorPrompt(appData, "(ESC to cancel) Save as: ")
+        appData.FileName = input.EditorPrompt(appData, "(ESC to cancel) Save as: ", nil)
         if appData.FileName == nil {
             appData.EditorSetStatusMessage("Save Aborted")
             return

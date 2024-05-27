@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-func EditorPrompt(appData *data.EditorConfig, prompt string) *string {
+func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *data.EditorConfig, query string, b rune)) *string {
     // bufSize := 128
     buf := ""
     // bufLen := 0
@@ -25,15 +25,25 @@ func EditorPrompt(appData *data.EditorConfig, prompt string) *string {
             }
         } else if inputRune == consts.ESC {
             appData.EditorSetStatusMessage("")
+            if aFunc != nil {
+                aFunc(appData, buf, inputRune)
+            }
             buf = ""
             return nil
         } else if inputRune == '\r' {
             if len(buf) != 0 {
                 appData.EditorSetStatusMessage("")
+                if aFunc != nil {
+                    aFunc(appData, buf, inputRune)
+                }
                 return &buf
             }
         } else if !unicode.IsControl(inputRune) {
             buf += string(inputRune)
         }
+        if aFunc != nil {
+            aFunc(appData, buf, inputRune)
+        }
     }
 }
+
