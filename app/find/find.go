@@ -3,13 +3,13 @@ package find
 import (
 	"strings"
 	"wicho/whim/app/consts"
-	"wicho/whim/app/data"
 	"wicho/whim/app/input"
+	"wicho/whim/app/row"
 )
 
-func editorFindCallback(appData *data.EditorConfig, query string, aRune rune){
+func editorFindCallback(appData *consts.EditorConfig, query string, aRune rune){
     if appData.StringFindData == nil {
-        appData.StringFindData = &data.FindData{
+        appData.StringFindData = &consts.FindData{
             LastMatch: -1,
             Direction: 1,
         }
@@ -42,14 +42,14 @@ func editorFindCallback(appData *data.EditorConfig, query string, aRune rune){
         if strIndex > -1 {
             appData.StringFindData.LastMatch = current
             appData.CursorPosY = current
-            appData.CursorPosX = data.EditorRowRxToCx(curRow, strIndex)
+            appData.CursorPosX = row.EditorRowRxToCx(curRow, strIndex)
             appData.RowOffSet = appData.NumRows
             break
         }
     }
 }
 
-func EditorFind(appData *data.EditorConfig){
+func EditorFind(appData *consts.EditorConfig){
     savedCursorPosX := appData.CursorPosX
     savedCursorPosY := appData.CursorPosY
     savedColOffset := appData.ColOffSet

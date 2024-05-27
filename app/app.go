@@ -26,14 +26,14 @@ func RunApp(){
     if len(argsWithProg) >= 2 {
         fileio.EditorOpen(&AppData, argsWithProg[1])
     }
-    AppData.EditorSetStatusMessage("HELP: Ctrl-s = save | Ctrl-C, q = Quit | Ctrl-F = Find")
+    data.EditorSetStatusMessage(&AppData, "HELP: Ctrl-s = save | Ctrl-C, q = Quit | Ctrl-F = Find")
     for {
         output.EditorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
     }
 }
 
-func editorProcessKeyPress(appData *data.EditorConfig){
+func editorProcessKeyPress(appData *consts.EditorConfig){
     keyReadRune := terminal.EditorReadKey()
     switch keyReadRune {
     case '\r':
@@ -102,10 +102,10 @@ func editorProcessKeyPress(appData *data.EditorConfig){
     }
 }
 
-func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
+func editorMoveCursor(appData *consts.EditorConfig, inputRune rune){
     // We and implementing moving at new line by hitting left on the end of the line
     // Or right at the end of the line
-    var pointerRow *data.EditorRow
+    var pointerRow *consts.EditorRow
     // Should it be appData.NumRows-1?
     if appData.CursorPosY >= appData.NumRows {
         pointerRow = nil
@@ -150,14 +150,14 @@ func editorMoveCursor(appData *data.EditorConfig, inputRune rune){
 }
 
 
-func initEditor(oldState *term.State) data.EditorConfig{
+func initEditor(oldState *term.State) consts.EditorConfig{
     width, height := terminal.GetWindowSize()
     height -= 2 //Making space for status bar
     initCursorX, initCursorY := 0,0
     var newBuf strings.Builder
     newBuf.Reset()
-    newRowSlice := make([]*data.EditorRow, 0)
-    return data.EditorConfig{
+    newRowSlice := make([]*consts.EditorRow, 0)
+    return consts.EditorConfig{
         OldTerminalState: *oldState, 
         ScreenRows: height,
         RowOffSet: 0,

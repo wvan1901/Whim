@@ -7,11 +7,11 @@ import (
 	"wicho/whim/app/terminal"
 )
 
-func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *data.EditorConfig, query string, b rune)) *string {
+func EditorPrompt(appData *consts.EditorConfig, prompt string, aFunc func(data *consts.EditorConfig, query string, b rune)) *string {
     buf := ""
 
     for {
-        appData.EditorSetStatusMessage(prompt, buf)
+        data.EditorSetStatusMessage(appData, prompt, buf)
         output.EditorRefreshScreen(appData)
 
         inputRune := terminal.EditorReadKey()
@@ -20,7 +20,7 @@ func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *da
                 buf = buf[:len(buf)-1]
             }
         } else if inputRune == consts.ESC {
-            appData.EditorSetStatusMessage("")
+            data.EditorSetStatusMessage(appData, "")
             if aFunc != nil {
                 aFunc(appData, buf, inputRune)
             }
@@ -28,7 +28,7 @@ func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *da
             return nil
         } else if inputRune == '\r' {
             if len(buf) != 0 {
-                appData.EditorSetStatusMessage("")
+                data.EditorSetStatusMessage(appData, "")
                 if aFunc != nil {
                     aFunc(appData, buf, inputRune)
                 }

@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
 	"wicho/whim/app/input"
 )
 
-func EditorOpen(appData *data.EditorConfig, fileName string){
+func EditorOpen(appData *consts.EditorConfig, fileName string){
     file, err := os.Open(fileName)
     if err != nil {
         appData.Die()
@@ -23,17 +24,17 @@ func EditorOpen(appData *data.EditorConfig, fileName string){
     for scanner.Scan() {
         totalLines++
         line = scanner.Text()
-        appData.EditorInsertRow(appData.NumRows, line)
+        data.EditorInsertRow(appData, appData.NumRows, line)
     }
     appData.Dirty = 0
 }
 
 //TODO: App is broken when trying to type when filename == nil
-func EditorSave(appData *data.EditorConfig){
+func EditorSave(appData *consts.EditorConfig){
     if appData.FileName == nil {
         appData.FileName = input.EditorPrompt(appData, "(ESC to cancel) Save as: ", nil)
         if appData.FileName == nil {
-            appData.EditorSetStatusMessage("Save Aborted")
+            data.EditorSetStatusMessage(appData, "Save Aborted")
             return
         }
     }
@@ -43,30 +44,30 @@ func EditorSave(appData *data.EditorConfig){
     file, err := os.OpenFile(*appData.FileName, os.O_RDWR | os.O_CREATE, 0644)
     defer file.Close()
     if err != nil{
-        appData.EditorSetStatusMessage("Can't save! I/O error: File Open")
+        data.EditorSetStatusMessage(appData, "Can't save! I/O error: File Open")
         return
     }
     err = file.Truncate(0)
     if err != nil{
-        appData.EditorSetStatusMessage("Can't save! I/O error: File Truncate")
+        data.EditorSetStatusMessage(appData, "Can't save! I/O error: File Truncate")
         return
     }
     _, err = file.Seek(0,0)
     if err != nil{
-        appData.EditorSetStatusMessage("Can't save! I/O error: File Seek")
+        data.EditorSetStatusMessage(appData, "Can't save! I/O error: File Seek")
         return
     }
     bytesWritten, err := file.WriteString(fileIntoString)
     if err != nil{
-        appData.EditorSetStatusMessage("Can't save! I/O error: File Write")
+        data.EditorSetStatusMessage(appData, "Can't save! I/O error: File Write")
         return
     }
     msg := fmt.Sprintf("%d bytes written to disk", bytesWritten)
     appData.Dirty = 0
-    appData.EditorSetStatusMessage(msg)
+    data.EditorSetStatusMessage(appData, msg)
 }
 
-func editorRowsToString(appData *data.EditorConfig) string {
+func editorRowsToString(appData *consts.EditorConfig) string {
     fileAsString := ""
     for _, row := range appData.Row{
         fileAsString += *row.Runes+string('\n')

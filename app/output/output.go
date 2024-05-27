@@ -3,15 +3,16 @@ package output
 import (
 	"fmt"
 	"time"
-	"unicode"
 	"wicho/whim/app/consts"
-	"wicho/whim/app/data"
+	"wicho/whim/app/highlight"
+	"wicho/whim/app/row"
 )
 
-func editorScroll(editorData *data.EditorConfig) {
+//TODO: Refactor Files!
+func editorScroll(editorData *consts.EditorConfig) {
     editorData.RendorIndexX = 0
     if editorData.CursorPosY < editorData.NumRows {
-        editorData.RendorIndexX = data.EditorRowCxToRx(editorData.Row[editorData.CursorPosY], editorData.CursorPosX)
+        editorData.RendorIndexX = row.EditorRowCxToRx(editorData.Row[editorData.CursorPosY], editorData.CursorPosX)
     }
 
     if editorData.CursorPosY < editorData.RowOffSet {
@@ -28,7 +29,7 @@ func editorScroll(editorData *data.EditorConfig) {
     }
 }
 
-func editorDrawRows(editorData *data.EditorConfig){
+func editorDrawRows(editorData *consts.EditorConfig){
     for y:=0; y<editorData.ScreenRows; y++ {
         fileRow := y + editorData.RowOffSet
         if fileRow >= editorData.NumRows{
@@ -56,31 +57,38 @@ func editorDrawRows(editorData *data.EditorConfig){
                 rowlength = 0
             }
             renderString := ""
+            renderHighlight := []int{}
             if rowlength > editorData.ScreenColumns {
                 rowlength = editorData.ScreenColumns
                 renderString = (*editorData.Row[fileRow].Render)[editorData.ColOffSet:rowlength]
+                renderHighlight = editorData.Row[fileRow].Highlights[editorData.ColOffSet:rowlength]
             } else if rowlength == 0 {
                 renderString = ""
+                renderHighlight = []int{}
             } else {
                 renderString = (*editorData.Row[fileRow].Render)[editorData.ColOffSet:]
+                renderHighlight = editorData.Row[fileRow].Highlights[editorData.ColOffSet:]
             }
             renderRunes := []rune(renderString)
             for j := 0; j < len(renderRunes); j++{
-                if unicode.IsDigit(renderRunes[j]){
-                    editorData.ABuf.WriteString("\033[31m")
-                    editorData.ABuf.WriteString(string(renderRunes[j]))
+                if renderHighlight[j] == consts.HL_NORMAL {
                     editorData.ABuf.WriteString("\033[39m")
+                    editorData.ABuf.WriteString(string(renderRunes[j]))
                 } else {
+                    colorInt := highlight.EditorSyntaxToColor(renderHighlight[j])
+                    unicodeColor := fmt.Sprintf("\033[%dm", colorInt)
+                    editorData.ABuf.WriteString(unicodeColor)
                     editorData.ABuf.WriteString(string(renderRunes[j]))
                 }
             }
+            editorData.ABuf.WriteString("\033[39m")
         }
         editorData.ABuf.WriteString("\033[K")
         editorData.ABuf.WriteString("\r\n")
     }
 }
 
-func editorDrawStatusBar(appData *data.EditorConfig){
+func editorDrawStatusBar(appData *consts.EditorConfig){
     appData.ABuf.WriteString("\033[7m")
     length := 0
     status := "[No Name]"
@@ -114,7 +122,7 @@ func editorDrawStatusBar(appData *data.EditorConfig){
     appData.ABuf.WriteString("\r\n")
 }
 
-func editorDrawMessageBar(appData *data.EditorConfig){
+func editorDrawMessageBar(appData *consts.EditorConfig){
     appData.ABuf.WriteString("\033[K")
     messageLength := len(appData.StatusMessage)
     if messageLength > appData.ScreenColumns{
@@ -125,7 +133,7 @@ func editorDrawMessageBar(appData *data.EditorConfig){
     }
 }
 
-func EditorRefreshScreen(appData *data.EditorConfig){
+func EditorRefreshScreen(appData *consts.EditorConfig){
     editorScroll(appData)
     appData.ABuf.WriteString("\033[?25l")
     appData.ABuf.WriteString("\033[H")
@@ -144,7 +152,7 @@ func EditorRefreshScreen(appData *data.EditorConfig){
 // This is in the data package, Should I move it here?
 
 // TODO: This should be put in terminal package!?
-func setCursorPosition(data *data.EditorConfig) {
+func setCursorPosition(data *consts.EditorConfig) {
     cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
     data.ABuf.WriteString(cursorPos)
 }
