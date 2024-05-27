@@ -28,6 +28,7 @@ type EditorConfig struct {
     ABuf strings.Builder
     StatusMessage string
     StatusMessageTime time.Time
+    StringFindData *FindData
     Dirty int
 }
 
@@ -232,4 +233,10 @@ func EditorRowRxToCx(curRow *EditorRow, renderPosX int) int {
         }
     }
     return curRow.Size-1
+}
+
+// Below is a struct that will be used to hold temp search data
+type FindData struct{
+    LastMatch int    
+    Direction int
 }

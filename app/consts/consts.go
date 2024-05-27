@@ -1,5 +1,7 @@
 package consts
 
+import "slices"
+
 const (
     NOTHINGKEY= 999 //This key will do nothing when pressed
     CONTROLCASCII = 1000
@@ -20,3 +22,11 @@ const (
     WHIM_VERSION = "0.0.1"
 )
 
+func RuneIsCtrlKey(aRune rune) bool {
+    var sliceOfRunes = []rune{
+        NOTHINGKEY, CONTROLCASCII, CONTROLFIRSTBYTE, LEFT_ARROW,
+        RIGHT_ARROW, DOWN_ARROW, UP_ARROW, PAGE_UP, PAGE_DOWN, 
+        HOME_KEY, END_KEY, DEL_KEY, ESC, BACKSPACE, CONTROL_S, CONTROL_F,
+    }
+    return slices.Contains(sliceOfRunes, aRune)
+}

@@ -221,6 +221,7 @@ func initEditor(oldState *term.State) data.EditorConfig{
         FileName: nil,
         StatusMessage: "",
         StatusMessageTime: time.Now(),
+        StringFindData: nil,
         Dirty: 0,
     }
 }

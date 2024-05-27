@@ -5,14 +5,10 @@ import (
 	"wicho/whim/app/data"
 	"wicho/whim/app/output"
 	"wicho/whim/app/terminal"
-
-	"unicode"
 )
 
 func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *data.EditorConfig, query string, b rune)) *string {
-    // bufSize := 128
     buf := ""
-    // bufLen := 0
 
     for {
         appData.EditorSetStatusMessage(prompt, buf)
@@ -38,7 +34,7 @@ func EditorPrompt(appData *data.EditorConfig, prompt string, aFunc func(data *da
                 }
                 return &buf
             }
-        } else if !unicode.IsControl(inputRune) {
+        } else if !consts.RuneIsCtrlKey(inputRune) { 
             buf += string(inputRune)
         }
         if aFunc != nil {
