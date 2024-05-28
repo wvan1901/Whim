@@ -15,7 +15,7 @@ func EditorInsertChar(appData *consts.EditorConfig, r rune){
     if appData.CursorPosY == appData.NumRows {
         row.EditorInsertRow(appData, appData.NumRows, "")
     }
-    row.EditorRowInsertChar(appData.Row[appData.CursorPosY], appData.CursorPosX, r)
+    row.EditorRowInsertChar(appData, appData.Row[appData.CursorPosY], appData.CursorPosX, r)
     //? Should this be moved to editorRowInsertChar?
     appData.Dirty++
     appData.CursorPosX += 1
@@ -41,12 +41,12 @@ func EditorDelChar(appData *consts.EditorConfig){
     }
     curRow := appData.Row[appData.CursorPosY]
     if appData.CursorPosX > 0 {
-        row.EditorRowDelChar(curRow, appData.CursorPosX - 1)
+        row.EditorRowDelChar(appData, curRow, appData.CursorPosX - 1)
         appData.CursorPosX--
         appData.Dirty++
     } else {
         appData.CursorPosX = appData.Row[appData.CursorPosY-1].Size
-        row.EditorRowAppendString(appData.Row[appData.CursorPosY-1], *curRow.Runes)
+        row.EditorRowAppendString(appData, appData.Row[appData.CursorPosY-1], *curRow.Runes)
         row.EditorDelRow(appData, appData.CursorPosY)
         appData.CursorPosY--
     }
@@ -63,7 +63,7 @@ func EditorInsertNewLine(appData *consts.EditorConfig){
         fmt.Println("Add:", &leftSideString)
         row.EditorInsertRow(appData, appData.CursorPosY+1, rightSideString)
         curRow.Size = len(*curRow.Runes)
-        row.EditorUpdateRow(curRow)
+        row.EditorUpdateRow(appData, curRow)
     }
     appData.CursorPosY++
     appData.CursorPosX = 0

@@ -6,6 +6,7 @@ import (
 	"os"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
+	"wicho/whim/app/highlight"
 	"wicho/whim/app/input"
 	"wicho/whim/app/row"
 )
@@ -18,6 +19,8 @@ func EditorOpen(appData *consts.EditorConfig, fileName string){
     defer file.Close()
     // appData.FileName = file.Name()
     appData.FileName = &fileName
+
+    highlight.EditorSelectSyntaxHighlight(appData)
 
     line := ""
     totalLines := 0
@@ -38,6 +41,7 @@ func EditorSave(appData *consts.EditorConfig){
             data.EditorSetStatusMessage(appData, "Save Aborted")
             return
         }
+        highlight.EditorSelectSyntaxHighlight(appData)
     }
 
     fileIntoString := editorRowsToString(appData)

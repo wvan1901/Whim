@@ -45,7 +45,7 @@ func EditorRowRxToCx(curRow *consts.EditorRow, renderPosX int) int {
 }
 
 //editorUpdateRow
-func EditorUpdateRow(row *consts.EditorRow){
+func EditorUpdateRow(appData *consts.EditorConfig, row *consts.EditorRow){
     row.Render = row.Runes
     row.RenderSize = len(*row.Render)
     if row.RenderSize < 1 {
@@ -68,7 +68,7 @@ func EditorUpdateRow(row *consts.EditorRow){
     row.Render = &renderString
     row.RenderSize = len(renderString)
 
-    highlight.EditorUpdateSyntax(row)
+    highlight.EditorUpdateSyntax(appData.EditorSyntax, row)
 }
 
 //editorInsertRow
@@ -93,7 +93,7 @@ func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
     newSlice := append(firstHalfSlice, &newRow)
     newSlice = append(newSlice, secondHalfSlice...)
     editorData.Row = newSlice
-    EditorUpdateRow(&newRow)
+    EditorUpdateRow(editorData, &newRow)
     editorData.NumRows++
     editorData.Dirty++
 }
@@ -114,7 +114,7 @@ func EditorDelRow(appData *consts.EditorConfig, at int){
 }
 
 //EditorRowInsertChar
-func EditorRowInsertChar(row *consts.EditorRow, at int, r rune){
+func EditorRowInsertChar(appData *consts.EditorConfig, row *consts.EditorRow, at int, r rune){
     if (at < 0 || at > row.Size){
         at = row.Size
     }
@@ -122,20 +122,20 @@ func EditorRowInsertChar(row *consts.EditorRow, at int, r rune){
     row.Runes = &newRunes
 
     row.Size += 1
-    EditorUpdateRow(row)
+    EditorUpdateRow(appData, row)
 }
 
 //EditorRowAppendString
-func EditorRowAppendString(row *consts.EditorRow, newString string){
+func EditorRowAppendString(appData *consts.EditorConfig, row *consts.EditorRow, newString string){
     newRowString := *row.Runes + newString
     row.Runes = &newRowString
     //TODO: Why is there a + '\n' for the Size?
     row.Size = row.Size + len(newString) + '\n'
-    EditorUpdateRow(row)
+    EditorUpdateRow(appData, row)
 }
 
 //EditorRowDelChar
-func EditorRowDelChar(row *consts.EditorRow, at int){
+func EditorRowDelChar(appData *consts.EditorConfig, row *consts.EditorRow, at int){
     if at < 0 || at > row.Size {
         return
     }
@@ -144,6 +144,6 @@ func EditorRowDelChar(row *consts.EditorRow, at int){
     newRunes := string(result)
     row.Runes = &newRunes
     row.Size = len(*row.Runes)
-    EditorUpdateRow(row)
+    EditorUpdateRow(appData, row)
 }
 

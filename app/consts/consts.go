@@ -44,14 +44,14 @@ type EditorConfig struct {
     RendorIndexX int
     NumRows int
     Row []*EditorRow
+    Dirty int
     FileName *string
     ABuf strings.Builder
     StatusMessage string
     StatusMessageTime time.Time
     StringFindData *FindData
-    Dirty int
+    EditorSyntax *EditorSyntax
 }
-
 // Below is a struct that will be used to hold temp search data
 type FindData struct{
     LastMatch int    
@@ -66,6 +66,12 @@ type EditorRow struct {
     Render *string
     RenderSize int
     Highlights []int
+}
+
+type EditorSyntax struct {
+    Filetype string
+    Filematch []string
+    Flags []string
 }
 
 func (appData *EditorConfig) Die(){
@@ -83,4 +89,17 @@ func RuneIsCtrlKey(aRune rune) bool {
         HOME_KEY, END_KEY, DEL_KEY, ESC, BACKSPACE, CONTROL_S, CONTROL_F,
     }
     return slices.Contains(sliceOfRunes, aRune)
+}
+
+
+func HLDB() []EditorSyntax{
+    cInfo := EditorSyntax{
+        Filetype: "c",
+        Filematch: []string{".c", ".h", ".cpp"},
+        Flags: []string{"HL_HIGHLIGHT_NUMBERS"},
+    }
+ 
+    var bd []EditorSyntax
+    bd = append(bd, cInfo)
+    return bd
 }

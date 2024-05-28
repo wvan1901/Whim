@@ -174,6 +174,7 @@ func initEditor(oldState *term.State) consts.EditorConfig{
         StatusMessageTime: time.Now(),
         StringFindData: nil,
         Dirty: 0,
+        EditorSyntax: nil,
     }
 }
 

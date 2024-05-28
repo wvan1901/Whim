@@ -112,7 +112,11 @@ func editorDrawStatusBar(appData *consts.EditorConfig){
             status += "(Modified)"
         }
         length = len(status)
-        rightSideStatus = fmt.Sprintf("%d/%d", appData.CursorPosY+1, appData.NumRows)
+        editorSyntax := "no ft"
+        if appData.EditorSyntax != nil {
+            editorSyntax = appData.EditorSyntax.Filetype
+        }
+        rightSideStatus = fmt.Sprintf("%s | %d/%d", editorSyntax, appData.CursorPosY+1, appData.NumRows)
         rightSideLength = len(rightSideStatus)
     }
     appData.ABuf.WriteString(status)
