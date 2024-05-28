@@ -30,6 +30,7 @@ const (
     WHIM_VERSION = "0.0.1"
     HL_NORMAL = 0
     HL_NUMBER = 1
+    HL_MATCH = 2
 )
 
 type EditorConfig struct {
@@ -55,6 +56,8 @@ type EditorConfig struct {
 type FindData struct{
     LastMatch int    
     Direction int
+    SavedHlLine int
+    SavedHighlights []int
 }
 
 type EditorRow struct {

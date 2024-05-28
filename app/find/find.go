@@ -15,6 +15,11 @@ func editorFindCallback(appData *consts.EditorConfig, query string, aRune rune){
         }
     }
 
+    if appData.StringFindData.SavedHighlights != nil {
+        appData.Row[appData.StringFindData.SavedHlLine].Highlights = appData.StringFindData.SavedHighlights
+        appData.StringFindData.SavedHighlights = nil
+    }
+
     if aRune == '\r' || aRune == consts.ESC {
         return
     } else if aRune == consts.RIGHT_ARROW || aRune == consts.DOWN_ARROW {
@@ -44,6 +49,15 @@ func editorFindCallback(appData *consts.EditorConfig, query string, aRune rune){
             appData.CursorPosY = current
             appData.CursorPosX = row.EditorRowRxToCx(curRow, strIndex)
             appData.RowOffSet = appData.NumRows
+
+            appData.StringFindData.SavedHlLine = current
+            appData.StringFindData.SavedHighlights = make([]int, len(curRow.Highlights))
+            for k, item := range curRow.Highlights {
+                appData.StringFindData.SavedHighlights[k] = item
+            }
+            for j := strIndex; j<strIndex+len(query); j++ {
+                curRow.Highlights[j] = consts.HL_MATCH
+            }
             break
         }
     }

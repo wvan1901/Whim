@@ -20,6 +20,8 @@ func EditorSyntaxToColor(hl int) int {
     switch hl {
     case consts.HL_NUMBER:
         return 31
+    case consts.HL_MATCH:
+        return 34
     default:
         return 37
     }
