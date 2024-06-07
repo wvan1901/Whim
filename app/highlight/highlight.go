@@ -15,7 +15,14 @@ func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow
         curRow.Highlights = rowHl
         return
     }
+
+    keywords := appSyntax.Keywords
+
+    singleLineCommentStart := appSyntax.SinglelineCommentStart
+
+
     prevSeperator := true
+    inString := ""
 
     i := 0
     for i < curRow.RenderSize {
@@ -27,10 +34,78 @@ func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow
             prevHl = consts.HL_NORMAL
         }
 
+        if len(singleLineCommentStart) > 0 && inString == ""{
+            rowSubString := renderRunes[i:]
+            if strings.HasPrefix(string(rowSubString), singleLineCommentStart){
+                for j:=i; j<curRow.RenderSize; j++{
+                    rowHl[j] = consts.HL_COMMENT
+                }
+                break
+            }
+        }
+
+        if slices.Contains(appSyntax.Flags, "HL_HIGHLIGHT_STRINGS"){
+            if inString != "" {
+                rowHl[i] = consts.HL_STRING
+                //Note: we do this for \\
+                if curRune == '\\' && i+1 < curRow.RenderSize {
+                    rowHl[i+1] = consts.HL_STRING
+                    i += 2
+                    continue
+                }
+                if string(curRune) == inString {
+                    inString = ""
+                }
+                i++
+                prevSeperator = true
+                continue
+            } else {
+                if curRune == '"' || curRune == '\''{
+                    inString = string(curRune)
+                    rowHl[i] = consts.HL_STRING
+                    i++
+                    continue
+                }
+            }
+        }
+
         if slices.Contains(appSyntax.Flags, "HL_HIGHLIGHT_NUMBERS"){
             if unicode.IsDigit(curRune) && (prevSeperator || prevHl == consts.HL_NUMBER) || (curRune == '.' && prevHl == consts.HL_NUMBER) {
                 rowHl[i] = consts.HL_NUMBER
                 i++
+                prevSeperator = false
+                continue
+            }
+        }
+
+        if (prevSeperator){
+            j:= 0
+            for ; j<len(keywords); j++{
+                curKeyword := keywords[j]
+                isKeyword2 := strings.HasSuffix(keywords[j], "|")
+                if isKeyword2 {
+                    curKeyword = strings.TrimSuffix(curKeyword, "|")
+                }
+
+
+                rowSubString := renderRunes[i:]
+                afterKeywordSeperator := '\u0000'
+                if i+len(curKeyword) < len(renderRunes) {
+                    afterKeywordSeperator = renderRunes[i+len(curKeyword)]
+                }
+                if strings.HasPrefix(string(rowSubString), curKeyword) && isSeperator(afterKeywordSeperator){
+                    for k:= i; k<i+len(curKeyword); k++{
+                        if isKeyword2 {
+                            rowHl[k] = consts.HL_KEYWORD2
+                        } else {
+                            rowHl[k] = consts.HL_KEYWORD1
+                        }
+                    }
+                    i+= len(curKeyword)
+                    break
+                }
+            }
+            if j == len(keywords) {
                 prevSeperator = false
                 continue
             }
@@ -55,6 +130,14 @@ func EditorSyntaxToColor(hl int) int {
         return 31
     case consts.HL_MATCH:
         return 34
+    case consts.HL_STRING:
+        return 35
+    case consts.HL_COMMENT:
+        return 36
+    case consts.HL_KEYWORD1:
+        return 33
+    case consts.HL_KEYWORD2:
+        return 32
     default:
         return 37
     }

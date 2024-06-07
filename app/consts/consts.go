@@ -31,6 +31,10 @@ const (
     HL_NORMAL = 0
     HL_NUMBER = 1
     HL_MATCH = 2
+    HL_STRING = 3
+    HL_COMMENT = 4
+    HL_KEYWORD1 = 5
+    HL_KEYWORD2 = 6
 )
 
 type EditorConfig struct {
@@ -71,6 +75,8 @@ type EditorRow struct {
 type EditorSyntax struct {
     Filetype string
     Filematch []string
+    Keywords []string
+    SinglelineCommentStart string
     Flags []string
 }
 
@@ -96,7 +102,12 @@ func HLDB() []EditorSyntax{
     cInfo := EditorSyntax{
         Filetype: "c",
         Filematch: []string{".c", ".h", ".cpp"},
-        Flags: []string{"HL_HIGHLIGHT_NUMBERS"},
+        Keywords: []string{"swtich", "if", "while", "for", "break", "continue", "return", "else",
+            "struct", "union", "typedef", "static", "enum", "class", "case",
+            "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|",
+        },
+        SinglelineCommentStart: "//",
+        Flags: []string{"HL_HIGHLIGHT_NUMBERS", "HL_HIGHLIGHT_STRINGS"},
     }
  
     var bd []EditorSyntax

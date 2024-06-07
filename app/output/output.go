@@ -3,12 +3,12 @@ package output
 import (
 	"fmt"
 	"time"
+	"unicode"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/highlight"
 	"wicho/whim/app/row"
 )
 
-//TODO: Refactor Files!
 func editorScroll(editorData *consts.EditorConfig) {
     editorData.RendorIndexX = 0
     if editorData.CursorPosY < editorData.NumRows {
@@ -72,7 +72,20 @@ func editorDrawRows(editorData *consts.EditorConfig){
             renderRunes := []rune(renderString)
             currentColor := -1
             for j := 0; j < len(renderRunes); j++{
-                if renderHighlight[j] == consts.HL_NORMAL {
+                //TODO: Test out opening a executable file if this if statement executes
+                if (unicode.IsControl(renderRunes[j])){
+                    symbol := "?"
+                    if renderRunes[j] <= 26{
+                        symbol = "@"
+                    }
+                    editorData.ABuf.WriteString("\033[7m")
+                    editorData.ABuf.WriteString(symbol)
+                    editorData.ABuf.WriteString("\033[m")
+                    if currentColor != -1 {
+                        unicodeColor := fmt.Sprintf("\033[%dm", currentColor)
+                        editorData.ABuf.WriteString(unicodeColor)
+                    }
+                } else if renderHighlight[j] == consts.HL_NORMAL {
                     if currentColor != -1 {
                         editorData.ABuf.WriteString("\033[39m")
                         currentColor = -1
