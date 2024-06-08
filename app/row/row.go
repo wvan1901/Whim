@@ -107,7 +107,6 @@ func EditorDelRow(appData *consts.EditorConfig, at int){
     if at < 0 || at >= appData.NumRows{
         return
     }
-    //TOOO: This might error if so then edit number for NunRow
     for j:=at+1; j<appData.NumRows; j++{
         appData.Row[j].Idx--
     }
