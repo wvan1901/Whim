@@ -17,7 +17,7 @@ import (
 )
 
 //A Solution to errors with no file, is check for input once it get ones then we add a row
-// This could be a mode,
+// This could be a mode
 func RunApp(){
     oldState := terminal.EnableRawMode()
     defer terminal.DisableRawMode(&oldState)
@@ -26,7 +26,7 @@ func RunApp(){
     if len(argsWithProg) >= 2 {
         fileio.EditorOpen(&AppData, argsWithProg[1])
     }
-    data.EditorSetStatusMessage(&AppData, "HELP: Ctrl-s = save | Ctrl-C, q = Quit | Ctrl-F = Find")
+    output.EditorSetStatusMessage(&AppData, "HELP: Ctrl-s = save | Ctrl-C, q = Quit | Ctrl-F = Find")
     for {
         output.EditorRefreshScreen(&AppData)
         editorProcessKeyPress(&AppData)
@@ -82,7 +82,6 @@ func editorProcessKeyPress(appData *consts.EditorConfig){
         appData.CursorPosX = 0
         break
     case consts.END_KEY:
-        // appData.CursorPosX = appData.ScreenColumns-1
         if appData.CursorPosY < appData.NumRows{
             appData.CursorPosX = appData.Row[appData.CursorPosY].Size
         }
@@ -93,20 +92,15 @@ func editorProcessKeyPress(appData *consts.EditorConfig){
     case consts.NOTHINGKEY:
         break
     default:
-        // appData.ABuf.WriteRune(keyReadRune)
-        // fmt.Println(keyReadRune)
-        // disableRawMode(&appData.OldTerminalState)
-        // defer os.Exit(0)
         data.EditorInsertChar(appData, keyReadRune)
         break
     }
 }
 
 func editorMoveCursor(appData *consts.EditorConfig, inputRune rune){
-    // We and implementing moving at new line by hitting left on the end of the line
+    // We are not (for now) implementing moving at new line by hitting left on the end of the line
     // Or right at the end of the line
     var pointerRow *consts.EditorRow
-    // Should it be appData.NumRows-1?
     if appData.CursorPosY >= appData.NumRows {
         pointerRow = nil
     } else {

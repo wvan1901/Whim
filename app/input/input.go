@@ -2,7 +2,6 @@ package input
 
 import (
 	"wicho/whim/app/consts"
-	"wicho/whim/app/data"
 	"wicho/whim/app/output"
 	"wicho/whim/app/terminal"
 )
@@ -11,7 +10,7 @@ func EditorPrompt(appData *consts.EditorConfig, prompt string, aFunc func(data *
     buf := ""
 
     for {
-        data.EditorSetStatusMessage(appData, prompt, buf)
+        output.EditorSetStatusMessage(appData, prompt, buf)
         output.EditorRefreshScreen(appData)
 
         inputRune := terminal.EditorReadKey()
@@ -20,7 +19,7 @@ func EditorPrompt(appData *consts.EditorConfig, prompt string, aFunc func(data *
                 buf = buf[:len(buf)-1]
             }
         } else if inputRune == consts.ESC {
-            data.EditorSetStatusMessage(appData, "")
+            output.EditorSetStatusMessage(appData, "")
             if aFunc != nil {
                 aFunc(appData, buf, inputRune)
             }
@@ -28,7 +27,7 @@ func EditorPrompt(appData *consts.EditorConfig, prompt string, aFunc func(data *
             return nil
         } else if inputRune == '\r' {
             if len(buf) != 0 {
-                data.EditorSetStatusMessage(appData, "")
+                output.EditorSetStatusMessage(appData, "")
                 if aFunc != nil {
                     aFunc(appData, buf, inputRune)
                 }

@@ -7,6 +7,7 @@ import (
 	"wicho/whim/app/consts"
 	"wicho/whim/app/highlight"
 	"wicho/whim/app/row"
+	"wicho/whim/app/terminal"
 )
 
 func editorScroll(editorData *consts.EditorConfig) {
@@ -165,19 +166,22 @@ func EditorRefreshScreen(appData *consts.EditorConfig){
     editorDrawStatusBar(appData)
     editorDrawMessageBar(appData)
 
-    setCursorPosition(appData)
+    terminal.SetCursorPosition(appData)
 
     appData.ABuf.WriteString("\033[?25h")
 
     fmt.Print(appData.ABuf.String())
     appData.ABuf.Reset()
 }
-//EditorSetStatusMessage
-// This is in the data package, Should I move it here?
 
-// TODO: This should be put in terminal package!?
-func setCursorPosition(data *consts.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
-    data.ABuf.WriteString(cursorPos)
+func EditorSetStatusMessage(data *consts.EditorConfig, messages ...string){
+    newStatusMsg := ""
+    for _, msg := range messages {
+        newStatusMsg += msg
+    }
+    data.StatusMessage = newStatusMsg
+    data.StatusMessageTime = time.Now()
+    
 }
+
 

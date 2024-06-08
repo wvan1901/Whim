@@ -2,7 +2,6 @@ package data
 
 import (
 	"fmt"
-	"time"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/row"
 )
@@ -16,20 +15,8 @@ func EditorInsertChar(appData *consts.EditorConfig, r rune){
         row.EditorInsertRow(appData, appData.NumRows, "")
     }
     row.EditorRowInsertChar(appData, appData.Row[appData.CursorPosY], appData.CursorPosX, r)
-    //? Should this be moved to editorRowInsertChar?
     appData.Dirty++
     appData.CursorPosX += 1
-}
-
-//TODO: this should probably be moved elsewhere
-func EditorSetStatusMessage(data *consts.EditorConfig, messages ...string){
-    newStatusMsg := ""
-    for _, msg := range messages {
-        newStatusMsg += msg
-    }
-    data.StatusMessage = newStatusMsg
-    data.StatusMessageTime = time.Now()
-    
 }
 
 func EditorDelChar(appData *consts.EditorConfig){

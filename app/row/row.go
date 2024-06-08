@@ -29,7 +29,6 @@ func EditorRowCxToRx(row *consts.EditorRow, cursorPosX int) int {
     return renderX
 }
 
-// This is the oppisite of EditorRowCxToRx
 func EditorRowRxToCx(curRow *consts.EditorRow, renderPosX int) int {
     curRx := 0
     for cursorPosX := 0; cursorPosX < curRow.Size; cursorPosX++{
@@ -44,7 +43,6 @@ func EditorRowRxToCx(curRow *consts.EditorRow, renderPosX int) int {
     return curRow.Size-1
 }
 
-//editorUpdateRow
 func EditorUpdateRow(appData *consts.EditorConfig, row *consts.EditorRow){
     row.Render = row.Runes
     row.RenderSize = len(*row.Render)
@@ -71,7 +69,6 @@ func EditorUpdateRow(appData *consts.EditorConfig, row *consts.EditorRow){
     highlight.EditorUpdateSyntax(appData, appData.EditorSyntax, row)
 }
 
-//editorInsertRow
 func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
     if at < 0 || at > editorData.NumRows {
         return
@@ -91,7 +88,6 @@ func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
         HlOpenComment: false,
     }
 
-    //NOTE: This Was Erroring Due To Trying At Add Row At Index
     var firstHalfSlice []*consts.EditorRow
     firstHalfSlice = append(firstHalfSlice, editorData.Row[:at]...)
     var secondHalfSlice []*consts.EditorRow
@@ -107,7 +103,6 @@ func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
 
 //editorFreeRow
 
-//EditorDelRow
 func EditorDelRow(appData *consts.EditorConfig, at int){
     if at < 0 || at >= appData.NumRows{
         return
@@ -123,7 +118,6 @@ func EditorDelRow(appData *consts.EditorConfig, at int){
     appData.Dirty++
 }
 
-//EditorRowInsertChar
 func EditorRowInsertChar(appData *consts.EditorConfig, row *consts.EditorRow, at int, r rune){
     if (at < 0 || at > row.Size){
         at = row.Size
@@ -135,7 +129,6 @@ func EditorRowInsertChar(appData *consts.EditorConfig, row *consts.EditorRow, at
     EditorUpdateRow(appData, row)
 }
 
-//EditorRowAppendString
 func EditorRowAppendString(appData *consts.EditorConfig, row *consts.EditorRow, newString string){
     newRowString := *row.Runes + newString
     row.Runes = &newRowString
@@ -144,7 +137,6 @@ func EditorRowAppendString(appData *consts.EditorConfig, row *consts.EditorRow, 
     EditorUpdateRow(appData, row)
 }
 
-//EditorRowDelChar
 func EditorRowDelChar(appData *consts.EditorConfig, row *consts.EditorRow, at int){
     if at < 0 || at > row.Size {
         return

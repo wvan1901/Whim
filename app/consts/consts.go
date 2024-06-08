@@ -57,6 +57,7 @@ type EditorConfig struct {
     StringFindData *FindData
     EditorSyntax *EditorSyntax
 }
+
 // Below is a struct that will be used to hold temp search data
 type FindData struct{
     LastMatch int    
@@ -88,7 +89,6 @@ type EditorSyntax struct {
 func (appData *EditorConfig) Die(){
     fmt.Print("\033[2J")
     fmt.Print("\033[H")
-    //Add os exit method! 
     term.Restore(0, &appData.OldTerminalState)
     defer os.Exit(1)
 }

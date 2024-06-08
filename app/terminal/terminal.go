@@ -12,20 +12,16 @@ import (
 	"wicho/whim/input"
 )
 
-//Die
 func Die(){
     fmt.Print("\033[2J")
     fmt.Print("\033[H")
-    //Add os exit method!
     defer os.Exit(1)
 }
 
-//DisableRawMode
 func DisableRawMode(oldState *term.State) {
     term.Restore(0, oldState)
 }
 
-//EnableRowMode
 func EnableRawMode() term.State{
     oldState, err := term.MakeRaw(0)
     if err != nil {
@@ -34,18 +30,14 @@ func EnableRawMode() term.State{
     return *oldState
 }
 
-//EditorReadKey
 func EditorReadKey() rune {
     inputBytes := input.ReaderBytes()
     inputRune, _ := utf8.DecodeRune(inputBytes)
     if unicode.IsControl(inputRune){
-        //fmt.Println("--bytes-",inputBytes, "-Rune-", inputRune, "-String-", string(inputRune))
-        //os.Exit(1)
         switch inputRune {
         case 3://CTRL-C
             return consts.CONTROLCASCII
         case 27://First byte is A CTRL byte
-            // Should add another switch statement that deals with this?
             returnRune, _ := utf8.DecodeRune(inputBytes[2:])
             switch returnRune{
             case 53://PAGE UP
@@ -99,7 +91,6 @@ func EditorReadKey() rune {
 
 //GetCursorPosition
 
-//GetWindowSize
 func GetWindowSize()(int, int){
     width, height, err := term.GetSize(0)
     if err != nil {
@@ -108,3 +99,7 @@ func GetWindowSize()(int, int){
     return width, height
 }
 
+func SetCursorPosition(data *consts.EditorConfig) {
+    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
+    data.ABuf.WriteString(cursorPos)
+}
