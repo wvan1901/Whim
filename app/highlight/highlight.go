@@ -7,7 +7,7 @@ import (
 	"wicho/whim/app/consts"
 )
 
-func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow){
+func EditorUpdateSyntax(appData *consts.EditorConfig, appSyntax *consts.EditorSyntax, curRow *consts.EditorRow){
     rowHl := make([]int, curRow.RenderSize)
     renderRunes := []rune(*curRow.Render)
 
@@ -19,10 +19,13 @@ func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow
     keywords := appSyntax.Keywords
 
     singleLineCommentStart := appSyntax.SinglelineCommentStart
+    mcs := appSyntax.MultilineCommentStart
+    mce := appSyntax.MultilineCommentEnd
 
 
     prevSeperator := true
     inString := ""
+    inComment := (curRow.Idx > 0 && appData.Row[curRow.Idx-1].HlOpenComment)
 
     i := 0
     for i < curRow.RenderSize {
@@ -34,13 +37,39 @@ func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow
             prevHl = consts.HL_NORMAL
         }
 
-        if len(singleLineCommentStart) > 0 && inString == ""{
+        if len(singleLineCommentStart) > 0 && inString == "" && !inComment{
             rowSubString := renderRunes[i:]
             if strings.HasPrefix(string(rowSubString), singleLineCommentStart){
                 for j:=i; j<curRow.RenderSize; j++{
                     rowHl[j] = consts.HL_COMMENT
                 }
                 break
+            }
+        }
+
+        if len(mcs)>0 && len(mce)>0 && inString == "" {
+            rowSubString := renderRunes[i:]
+            if inComment{
+                rowHl[i] = consts.HL_MLCOMMENT
+                rowSubString := renderRunes[i:]
+                if strings.HasPrefix(string(rowSubString), mce) {
+                    for j:=i; j<i+len(mce); j++{
+                        rowHl[j] = consts.HL_COMMENT
+                    }
+                    i += len(mce)
+                    inComment = false
+                    prevSeperator = true
+                    continue
+                } else {
+                    i++
+                    continue
+                }
+            } else if strings.HasPrefix(string(rowSubString), mcs) {
+                for j:=i; j<i+len(mcs); j++{
+                    rowHl[j] = consts.HL_COMMENT
+                }
+                i += len(mcs)
+                inComment = true
             }
         }
 
@@ -114,6 +143,13 @@ func EditorUpdateSyntax(appSyntax *consts.EditorSyntax, curRow *consts.EditorRow
         prevSeperator = isSeperator(curRune)
         i++
     }
+
+    changed := (curRow.HlOpenComment != inComment)
+    curRow.HlOpenComment = inComment
+    if changed && curRow.Idx+1 < appData.NumRows{
+        EditorUpdateSyntax(appData, appSyntax, appData.Row[curRow.Idx+1])
+    }
+
     curRow.Highlights = rowHl
 }
 
@@ -138,6 +174,8 @@ func EditorSyntaxToColor(hl int) int {
         return 33
     case consts.HL_KEYWORD2:
         return 32
+    case consts.HL_MLCOMMENT:
+        return 36
     default:
         return 37
     }
@@ -163,7 +201,7 @@ func EditorSelectSyntaxHighlight(appData *consts.EditorConfig){
                 appData.EditorSyntax = &curEditorSyntax
 
                 for filerow := 0; filerow < appData.NumRows; filerow++{
-                    EditorUpdateSyntax(appData.EditorSyntax, appData.Row[filerow])
+                    EditorUpdateSyntax(appData, appData.EditorSyntax, appData.Row[filerow])
                 }
 
                 return

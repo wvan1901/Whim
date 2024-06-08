@@ -35,6 +35,7 @@ const (
     HL_COMMENT = 4
     HL_KEYWORD1 = 5
     HL_KEYWORD2 = 6
+    HL_MLCOMMENT = 7
 )
 
 type EditorConfig struct {
@@ -65,11 +66,13 @@ type FindData struct{
 }
 
 type EditorRow struct {
+    Idx int
     Size int
     Runes *string
     Render *string
     RenderSize int
     Highlights []int
+    HlOpenComment bool
 }
 
 type EditorSyntax struct {
@@ -77,6 +80,8 @@ type EditorSyntax struct {
     Filematch []string
     Keywords []string
     SinglelineCommentStart string
+    MultilineCommentStart string
+    MultilineCommentEnd string
     Flags []string
 }
 
@@ -107,6 +112,8 @@ func HLDB() []EditorSyntax{
             "int|", "long|", "double|", "float|", "char|", "unsigned|", "signed|", "void|",
         },
         SinglelineCommentStart: "//",
+        MultilineCommentStart: "/*",
+        MultilineCommentEnd: "*/",
         Flags: []string{"HL_HIGHLIGHT_NUMBERS", "HL_HIGHLIGHT_STRINGS"},
     }
  

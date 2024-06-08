@@ -68,7 +68,7 @@ func EditorUpdateRow(appData *consts.EditorConfig, row *consts.EditorRow){
     row.Render = &renderString
     row.RenderSize = len(renderString)
 
-    highlight.EditorUpdateSyntax(appData.EditorSyntax, row)
+    highlight.EditorUpdateSyntax(appData, appData.EditorSyntax, row)
 }
 
 //editorInsertRow
@@ -77,12 +77,18 @@ func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
         return
     }
 
+    for j:=at; j<editorData.NumRows; j++{
+        editorData.Row[j].Idx++
+    }
+
     newRow := consts.EditorRow{
+        Idx: at,
         Size: len(aString),
         Runes: &aString,
         Render: nil,
         RenderSize: 0,
         Highlights: nil,
+        HlOpenComment: false,
     }
 
     //NOTE: This Was Erroring Due To Trying At Add Row At Index
@@ -105,6 +111,10 @@ func EditorInsertRow(editorData *consts.EditorConfig, at int, aString string){
 func EditorDelRow(appData *consts.EditorConfig, at int){
     if at < 0 || at >= appData.NumRows{
         return
+    }
+    //TOOO: This might error if so then edit number for NunRow
+    for j:=at+1; j<appData.NumRows; j++{
+        appData.Row[j].Idx--
     }
     newRows := append(appData.Row[:at], appData.Row[at+1:]...)
     appData.Row = newRows
