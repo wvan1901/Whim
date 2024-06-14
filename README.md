@@ -48,8 +48,4 @@ So massive thanks to them for providing this amazing guide.
 * Add Multiple buffers
 
 ## Current Defects
-* Currently when opening Whim without a file it exibits wierd behavior: (WIP) 
-    * Bottom bar isn't the correct width
-    * Text input isn't being displayed
-    * Whim editor message isn't clearing after input 
 * Traversing a file with tabs the cursor moves inconsistently

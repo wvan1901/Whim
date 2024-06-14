@@ -111,8 +111,8 @@ func editorDrawRows(editorData *consts.EditorConfig){
 
 func editorDrawStatusBar(appData *consts.EditorConfig){
     appData.ABuf.WriteString("\033[7m")
-    length := 0
     status := "[No Name]"
+    length := len(status)
     rightSideStatus := ""
     rightSideLength := 0
     if appData.FileName != nil {
