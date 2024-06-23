@@ -18,6 +18,10 @@ func Die() {
 	defer os.Exit(1)
 }
 
+func Quit(old *term.State) {
+	//TODO: Refactor so we dont use whim modules
+}
+
 func DisableRawMode(oldState *term.State) {
 	term.Restore(0, oldState)
 }

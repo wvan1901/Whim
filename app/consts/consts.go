@@ -102,6 +102,10 @@ func (appData *EditorConfig) Die() {
 	defer os.Exit(1)
 }
 
+func (appData *EditorConfig) Quit() {
+	//TODO: When terminal module is refactored call func here
+}
+
 func RuneIsCtrlKey(aRune rune) bool {
 	var sliceOfRunes = []rune{
 		NOTHINGKEY, CONTROLCASCII, CONTROLFIRSTBYTE, LEFT_ARROW,

@@ -27,7 +27,7 @@ func (n *Normal) EditorProcessKeyPress(c *consts.EditorConfig) {
 		break
 	case consts.CONTROLCASCII:
 		//TODO: Add a warning message if file is dirty and ask User to Confirm
-		fmt.Println("<C>")
+		//TODO: Refactor so we use Quit
 		terminal.DisableRawMode(&c.OldTerminalState)
 		fmt.Print("\033[2J")
 		fmt.Print("\033[H")
@@ -85,6 +85,9 @@ func (n *Normal) EditorProcessKeyPress(c *consts.EditorConfig) {
 		mode := Insert{}
 		c.Mode = &mode
 		return
+	case ":":
+		mode := Command{}
+		c.Mode = &mode
 	}
 }
 

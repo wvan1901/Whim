@@ -32,11 +32,11 @@ Once again this is based of the article [Snap Token Kilo Editor Guide](https://v
 Massive thanks to them for providing this amazing guide.
 
 ## Upcoming Features
-* Add mode: Command
 * If a file is "Dirty" as user to confirm to exit
 * Soft indents
 * Add support for other enviorments
 * Copy & Paste
+* Undo & Redo
 * Add file highligting for languages:
     * Golang
     * Javascript
@@ -46,8 +46,11 @@ Massive thanks to them for providing this amazing guide.
 ## Current Defects
 * Traversing a file with tabs the cursor moves inconsistently
 
+## Tech Debt
+* Add terminal Quit func & refactor
+
 ## Added Features
 Below are the added feature after completing the article
 * Line Numbers (Toggle, added relative line numbers as well)
-* Modal editor (Normal, Insert)
+* Modal editor (Normal, Insert, Command)
 
