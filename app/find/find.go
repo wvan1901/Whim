@@ -7,77 +7,77 @@ import (
 	"wicho/whim/app/row"
 )
 
-func editorFindCallback(appData *consts.EditorConfig, query string, aRune rune){
-    if appData.StringFindData == nil {
-        appData.StringFindData = &consts.FindData{
-            LastMatch: -1,
-            Direction: 1,
-        }
-    }
+func editorFindCallback(appData *consts.EditorConfig, query string, aRune rune) {
+	if appData.StringFindData == nil {
+		appData.StringFindData = &consts.FindData{
+			LastMatch: -1,
+			Direction: 1,
+		}
+	}
 
-    if appData.StringFindData.SavedHighlights != nil {
-        appData.Row[appData.StringFindData.SavedHlLine].Highlights = appData.StringFindData.SavedHighlights
-        appData.StringFindData.SavedHighlights = nil
-    }
+	if appData.StringFindData.SavedHighlights != nil {
+		appData.Row[appData.StringFindData.SavedHlLine].Highlights = appData.StringFindData.SavedHighlights
+		appData.StringFindData.SavedHighlights = nil
+	}
 
-    if aRune == '\r' || aRune == consts.ESC {
-        return
-    } else if aRune == consts.RIGHT_ARROW || aRune == consts.DOWN_ARROW {
-        appData.StringFindData.Direction = 1
-    } else if aRune == consts.LEFT_ARROW || aRune == consts.UP_ARROW {
-        appData.StringFindData.Direction = -1
-    } else {
-        appData.StringFindData.LastMatch = -1
-        appData.StringFindData.Direction = 1
-    }
+	if aRune == '\r' || aRune == consts.ESC {
+		return
+	} else if aRune == consts.RIGHT_ARROW || aRune == consts.DOWN_ARROW {
+		appData.StringFindData.Direction = 1
+	} else if aRune == consts.LEFT_ARROW || aRune == consts.UP_ARROW {
+		appData.StringFindData.Direction = -1
+	} else {
+		appData.StringFindData.LastMatch = -1
+		appData.StringFindData.Direction = 1
+	}
 
-    if appData.StringFindData.LastMatch == -1 {
-        appData.StringFindData.Direction = 1
-    }
-    current := appData.StringFindData.LastMatch
-    for i := 0; i < appData.NumRows; i++ {
-        current += appData.StringFindData.Direction
-        if current == -1 {
-            current = appData.NumRows - 1
-        } else if current == appData.NumRows {
-            current = 0 
-        }
-        curRow := appData.Row[current]
-        strIndex := strings.Index(*curRow.Runes, query)
-        if strIndex > -1 {
-            appData.StringFindData.LastMatch = current
-            appData.CursorPosY = current
-            appData.CursorPosX = row.EditorRowRxToCx(curRow, strIndex)
-            appData.RowOffSet = appData.NumRows
+	if appData.StringFindData.LastMatch == -1 {
+		appData.StringFindData.Direction = 1
+	}
+	current := appData.StringFindData.LastMatch
+	for i := 0; i < appData.NumRows; i++ {
+		current += appData.StringFindData.Direction
+		if current == -1 {
+			current = appData.NumRows - 1
+		} else if current == appData.NumRows {
+			current = 0
+		}
+		curRow := appData.Row[current]
+		strIndex := strings.Index(*curRow.Runes, query)
+		if strIndex > -1 {
+			appData.StringFindData.LastMatch = current
+			appData.CursorPosY = current
+			appData.CursorPosX = row.EditorRowRxToCx(curRow, strIndex)
+			appData.RowOffSet = appData.NumRows
 
-            appData.StringFindData.SavedHlLine = current
-            appData.StringFindData.SavedHighlights = make([]int, len(curRow.Highlights))
-            for k, item := range curRow.Highlights {
-                appData.StringFindData.SavedHighlights[k] = item
-            }
-            for j := strIndex; j<strIndex+len(query); j++ {
-                curRow.Highlights[j] = consts.HL_MATCH
-            }
-            break
-        }
-    }
+			appData.StringFindData.SavedHlLine = current
+			appData.StringFindData.SavedHighlights = make([]int, len(curRow.Highlights))
+			for k, item := range curRow.Highlights {
+				appData.StringFindData.SavedHighlights[k] = item
+			}
+			for j := strIndex; j < strIndex+len(query); j++ {
+				curRow.Highlights[j] = consts.HL_MATCH
+			}
+			break
+		}
+	}
 }
 
-func EditorFind(appData *consts.EditorConfig){
-    savedCursorPosX := appData.CursorPosX
-    savedCursorPosY := appData.CursorPosY
-    savedColOffset := appData.ColOffSet
-    savedRowOffset := appData.RowOffSet
-    appData.StringFindData = nil
+func EditorFind(appData *consts.EditorConfig) {
+	savedCursorPosX := appData.CursorPosX
+	savedCursorPosY := appData.CursorPosY
+	savedColOffset := appData.ColOffSet
+	savedRowOffset := appData.RowOffSet
+	appData.StringFindData = nil
 
-    queryPrompt := input.EditorPrompt(appData, "(ESC to cancel) Search:", editorFindCallback)
-    if queryPrompt == nil {
-        return
-    } else {
-        appData.CursorPosX = savedCursorPosX
-        appData.CursorPosY = savedCursorPosY
-        appData.ColOffSet = savedColOffset
-        appData.RowOffSet = savedRowOffset
-    }
-    appData.StringFindData = nil
+	queryPrompt := input.EditorPrompt(appData, "(ESC to cancel) Search:", editorFindCallback)
+	if queryPrompt == nil {
+		return
+	} else {
+		appData.CursorPosX = savedCursorPosX
+		appData.CursorPosY = savedCursorPosY
+		appData.ColOffSet = savedColOffset
+		appData.RowOffSet = savedRowOffset
+	}
+	appData.StringFindData = nil
 }

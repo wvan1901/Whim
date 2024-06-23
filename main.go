@@ -4,6 +4,6 @@ import (
 	"wicho/whim/app"
 )
 
-func main(){
-   app.RunApp()
+func main() {
+	app.RunApp()
 }
