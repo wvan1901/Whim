@@ -58,6 +58,7 @@ type EditorConfig struct {
 	StringFindData    *FindData
 	EditorSyntax      *EditorSyntax
 	Features          *Features
+	Mode              Mode
 }
 
 // Below is a struct that will be used to hold temp search data
@@ -127,4 +128,9 @@ func HLDB() []EditorSyntax {
 	var bd []EditorSyntax
 	bd = append(bd, cInfo)
 	return bd
+}
+
+type Mode interface {
+	EditorProcessKeyPress(*EditorConfig)
+	ShortString() string
 }

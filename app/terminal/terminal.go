@@ -74,18 +74,6 @@ func EditorReadKey() rune {
 			return consts.NOTHINGKEY
 		}
 	}
-	switch string(inputRune) {
-	case "q":
-		return consts.CONTROLCASCII
-	case "h":
-		return consts.LEFT_ARROW
-	case "j":
-		return consts.DOWN_ARROW
-	case "k":
-		return consts.UP_ARROW
-	case "l":
-		return consts.RIGHT_ARROW
-	}
 	return inputRune
 }
 

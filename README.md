@@ -1,19 +1,17 @@
 # Whim
-What is this repo? This is a Linux(I think... It works on my linux laptop) Text editor called Whim.\
+What is this repo? This is a Text editor called Whim.\
 This text editor is based on [Snap Token Kilo Editor Guide](https://viewsourcecode.org/snaptoken/kilo/index.html)
-I tried to use little to no external Libaries
 
 ## Why did I make this?
-Why not. I decided that writing my own text editor would be fun.
-I tried to make a text editor with out any guidence but I ended with many bugs implementing
-a rope data structure so I dropped it. One day I stumbled across the article and 
-I decided to give a text editor a try again. You might be asking why is it in go?
-I wrote it in go because I've been learning go and I really started to like the language.
-Also instead if copying the article entirely (I can't really learn that way) I decided that
-trying it in go would make me learn better.
+I decided that writing my own text editor would be fun.
+One day I stumbled across the article and I decided to give creating a text editor a try.\
+You might be asking why is it in go?
+When I started this project I was learning go and I really started to like the language.
+Also instead of copying the article entirely (I can't really learn that way) I decided that
+trying it in go would be a better learning experience.
 
 ## What enviorments does this support?
-Currently only Linux, it works on my ubuntu Linux laptop. Hopefully I can add support to other enviorments
+Currently terminals that support ANSI escape codes. 
 
 ## How install and run Whim?
 Currently this project is still in development phase. So to run this project 
@@ -26,16 +24,15 @@ go run main.go
 ```
 
 ## How to use Whim?
-Currently its just a simple text editor. As of writing this its not a super useful
-editor since some keys are reserved as actions so you wont be able to edit a file
-properly but hopely I will fix this soon when I implement a modes!
+Currently its just a simple text editor. Check the features section below to see
+what functionality Whim has.
 
 ## Credits
 Once again this is based of the article [Snap Token Kilo Editor Guide](https://viewsourcecode.org/snaptoken/kilo/index.html)
-So massive thanks to them for providing this amazing guide.
+Massive thanks to them for providing this amazing guide.
 
-## Upcoming Feature
-* Add modal editing
+## Upcoming Features
+* Add mode: Command
 * If a file is "Dirty" as user to confirm to exit
 * Soft indents
 * Add support for other enviorments
@@ -50,4 +47,7 @@ So massive thanks to them for providing this amazing guide.
 * Traversing a file with tabs the cursor moves inconsistently
 
 ## Added Features
-* Add Line Numbers (Toggle, added relative line numbers as well)
+Below are the added feature after completing the article
+* Line Numbers (Toggle, added relative line numbers as well)
+* Modal editor (Normal, Insert)
+

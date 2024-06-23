@@ -112,6 +112,8 @@ func editorDrawRows(editorData *consts.EditorConfig) {
 }
 
 func editorDrawStatusBar(appData *consts.EditorConfig) {
+	modeVisualLen := editorDrawModeInStatusBar(appData)
+	statusBarLen := appData.ScreenColumns - modeVisualLen
 	appData.ABuf.WriteString("\033[7m")
 	status := "[No Name]"
 	length := len(status)
@@ -136,8 +138,8 @@ func editorDrawStatusBar(appData *consts.EditorConfig) {
 		rightSideLength = len(rightSideStatus)
 	}
 	appData.ABuf.WriteString(status)
-	for length < appData.ScreenColumns {
-		if (appData.ScreenColumns - length) == rightSideLength {
+	for length < statusBarLen {
+		if (statusBarLen - length) == rightSideLength {
 			appData.ABuf.WriteString(rightSideStatus)
 			break
 		} else {
@@ -147,6 +149,17 @@ func editorDrawStatusBar(appData *consts.EditorConfig) {
 	}
 	appData.ABuf.WriteString("\033[m")
 	appData.ABuf.WriteString("\r\n")
+}
+
+func editorDrawModeInStatusBar(c *consts.EditorConfig) int {
+	c.ABuf.WriteString("\033[41m") //Set background to red
+	c.ABuf.WriteString("\033[30m") //Set foreground to black
+	modeVisual := " " + c.Mode.ShortString() + " "
+	c.ABuf.WriteString(modeVisual)
+	c.ABuf.WriteString("\033[39m") //Set background to default
+	c.ABuf.WriteString("\033[40m") //Set foreground to default
+
+	return len(modeVisual)
 }
 
 func editorDrawMessageBar(appData *consts.EditorConfig) {
