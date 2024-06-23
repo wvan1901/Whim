@@ -100,6 +100,8 @@ func GetWindowSize()(int, int){
 }
 
 func SetCursorPosition(data *consts.EditorConfig) {
-    cursorPos := fmt.Sprintf("\033[%d;%dH", (data.CursorPosY - data.RowOffSet)+1, (data.RendorIndexX - data.ColOffSet)+1)
+    calcCursorPosX := (data.RendorIndexX - data.ColOffSet)+1
+    calcCursorPosY := (data.CursorPosY - data.RowOffSet)+1
+    cursorPos := fmt.Sprintf("\033[%d;%dH", calcCursorPosY, calcCursorPosX )
     data.ABuf.WriteString(cursorPos)
 }
