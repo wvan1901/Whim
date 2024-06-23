@@ -35,7 +35,6 @@ Once again this is based of the article [Snap Token Kilo Editor Guide](https://v
 So massive thanks to them for providing this amazing guide.
 
 ## Upcoming Feature
-* Add Line Numbers
 * Add modal editing
 * If a file is "Dirty" as user to confirm to exit
 * Soft indents
@@ -49,3 +48,6 @@ So massive thanks to them for providing this amazing guide.
 
 ## Current Defects
 * Traversing a file with tabs the cursor moves inconsistently
+
+## Added Features
+* Add Line Numbers (Toggle, added relative line numbers as well)
