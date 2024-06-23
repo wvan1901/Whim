@@ -11,7 +11,7 @@ Also instead of copying the article entirely (I can't really learn that way) I d
 trying it in go would be a better learning experience.
 
 ## What enviorments does this support?
-Currently terminals that support ANSI escape codes. 
+Currently terminals that support ANSI escape codes & linux machines.
 
 ## How install and run Whim?
 Currently this project is still in development phase. So to run this project 
