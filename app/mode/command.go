@@ -4,6 +4,7 @@ import (
 	"wicho/whim/app/consts"
 	"wicho/whim/app/fileio"
 	"wicho/whim/app/input"
+	"wicho/whim/app/terminal"
 )
 
 type Command struct{}
@@ -43,7 +44,7 @@ func executeCommand(cmd string, c *consts.EditorConfig) {
 		fileio.EditorSave(c)
 		return
 	case 'q': // Quit App
-		c.Die() //TODO: When terminal is refactored call Quit
+		terminal.Quit(&c.OldTerminalState)
 		return
 	}
 }

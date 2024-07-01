@@ -19,7 +19,10 @@ func Die() {
 }
 
 func Quit(old *term.State) {
-	//TODO: Refactor so we dont use whim modules
+	DisableRawMode(old)
+	fmt.Print("\033[2J")
+	fmt.Print("\033[H")
+	defer os.Exit(0)
 }
 
 func DisableRawMode(oldState *term.State) {

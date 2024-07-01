@@ -1,14 +1,11 @@
 package mode
 
 import (
-	"os"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/data"
 	"wicho/whim/app/fileio"
 	"wicho/whim/app/find"
 	"wicho/whim/app/terminal"
-
-	"fmt"
 )
 
 type Normal struct{}
@@ -27,11 +24,7 @@ func (n *Normal) EditorProcessKeyPress(c *consts.EditorConfig) {
 		break
 	case consts.CONTROLCASCII:
 		//TODO: Add a warning message if file is dirty and ask User to Confirm
-		//TODO: Refactor so we use Quit
-		terminal.DisableRawMode(&c.OldTerminalState)
-		fmt.Print("\033[2J")
-		fmt.Print("\033[H")
-		defer os.Exit(0)
+		terminal.Quit(&c.OldTerminalState)
 		break
 	case consts.CONTROL_S:
 		fileio.EditorSave(c)

@@ -32,7 +32,7 @@ Once again this is based of the article [Snap Token Kilo Editor Guide](https://v
 Massive thanks to them for providing this amazing guide.
 
 ## Upcoming Features
-* If a file is "Dirty" as user to confirm to exit
+* If a file is "Dirty" ask user to confirm to exit
 * Soft indents
 * Add support for other enviorments
 * Copy & Paste
@@ -47,7 +47,7 @@ Massive thanks to them for providing this amazing guide.
 * Traversing a file with tabs the cursor moves inconsistently
 
 ## Tech Debt
-* Add terminal Quit func & refactor
+* Fix/Remove Remaining TODO's
 
 ## Added Features
 Below are the added feature after completing the article
