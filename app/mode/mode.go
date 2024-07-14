@@ -23,8 +23,7 @@ func (n *Normal) EditorProcessKeyPress(c *consts.EditorConfig) {
 	case consts.ESC:
 		break
 	case consts.CONTROLCASCII:
-		//TODO: Add a warning message if file is dirty and ask User to Confirm
-		terminal.Quit(&c.OldTerminalState)
+		normalExit(c)
 		break
 	case consts.CONTROL_S:
 		fileio.EditorSave(c)

@@ -26,7 +26,6 @@ func RunApp() {
 	output.EditorSetStatusMessage(&AppData, "HELP: Ctrl-s = save | Ctrl-C = Quit | Ctrl-F = Find")
 	for {
 		output.EditorRefreshScreen(&AppData)
-		//editorProcessKeyPress(&AppData)
 		AppData.Mode.EditorProcessKeyPress(&AppData)
 	}
 }

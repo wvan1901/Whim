@@ -32,7 +32,6 @@ Once again this is based of the article [Snap Token Kilo Editor Guide](https://v
 Massive thanks to them for providing this amazing guide.
 
 ## Upcoming Features
-* If a file is "Dirty" ask user to confirm to exit
 * Soft indents
 * Add support for other enviorments
 * Copy & Paste
@@ -53,4 +52,5 @@ Massive thanks to them for providing this amazing guide.
 Below are the added feature after completing the article
 * Line Numbers (Toggle, added relative line numbers as well)
 * Modal editor (Normal, Insert, Command)
+* If a file is "Dirty" ask user to confirm to exit (Normal Mode Only)
 
