@@ -1,7 +1,6 @@
 package row
 
 import (
-	"fmt"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/highlight"
 )
@@ -17,7 +16,6 @@ func EditorRowCxToRx(row *consts.EditorRow, cursorPosX int) int {
 	renderX := 0
 	for i, aRune := range []rune(*row.Runes) {
 		if i >= cursorPosX {
-			fmt.Println("BREAK| I:", i+1)
 			break
 		}
 		if aRune == '\t' {

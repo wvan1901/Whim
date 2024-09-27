@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"wicho/whim/app/consts"
 	"wicho/whim/app/row"
 )
@@ -47,7 +46,6 @@ func EditorInsertNewLine(appData *consts.EditorConfig) {
 		leftSideString := (*curRow.Runes)[:appData.CursorPosX]
 		rightSideString := (*curRow.Runes)[appData.CursorPosX:]
 		curRow.Runes = &leftSideString
-		fmt.Println("Add:", &leftSideString)
 		row.EditorInsertRow(appData, appData.CursorPosY+1, rightSideString)
 		curRow.Size = len(*curRow.Runes)
 		row.EditorUpdateRow(appData, curRow)
